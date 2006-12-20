@@ -1,0 +1,76 @@
+# Makefile pour la librairie gb
+#
+#  ATTENTION  pour tcl  compilation automatique au chargement de gb.tcl
+
+prefix= @prefix@
+exec_prefix= @exec_prefix@
+LIBDIR= @libdir@
+INCLUDEDIR= @includedir@/gbM
+top_srcdir= @top_srcdir@
+srcdir= @srcdir@
+top_builddir= .
+
+MKDEP=	@MKDEP@
+INSTALL= @INSTALL@
+MKINSTALLDIRS= /bin/sh ${top_srcdir}/mkinstalldirs
+LIBTOOL= @LIBTOOL@
+CC= @CC@
+
+# les entetes
+HEADERS= Proto_gb.h gb.h Proto_gbModeles.h gbStruct.h gbGENOM.h
+
+# Les sources
+SRCS = 	gbModeles.c gb.c
+
+# Les objects
+OBJS  =	$(SRCS:%.c=%.lo)
+
+# La librairie:
+GB_LIB = libgb.la
+MAJOR=0
+MINOR=0
+TINY=0
+
+VPATH= $(srcdir)
+
+all:	$(GB_LIB)
+
+
+# Edition de liens
+$(GB_LIB): $(OBJS) 
+	$(LIBTOOL) --mode=link $(CC) -o $@ -rpath $(LIBDIR) \
+	--version-info $(MAJOR):$(MINOR):$(TINY) $(OBJS)
+
+
+%.lo:	%.c
+	$(LIBTOOL) --mode=compile $(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+TAGS :
+	etags *.h *.c
+
+install:: $(GB_LIB)
+	$(MKINSTALLDIRS) $(LIBDIR)
+	$(LIBTOOL) --mode=install $(INSTALL) $(GB_LIB) $(LIBDIR)
+
+install:: $(HEADERS)
+	$(MKINSTALLDIRS) $(INCLUDEDIR)
+	@for f in $(HEADERS); do \
+		echo "installing $$f"; \
+		$(INSTALL) -m 664 $(srcdir)/$$f $(INCLUDEDIR) ; \
+	done
+
+install:: gbm.pc
+	$(MKINSTALLDIRS) $(LIBDIR)/pkgconfig
+	$(INSTALL) -m 664 gbm.pc $(LIBDIR)/pkgconfig
+
+distclean: clean
+	rm -f  TAGS Makefile gbm.pc
+
+clean:
+	$(LIBTOOL) --mode=clean rm -f $(OBJS) $(GB_LIB)
+
+
+depend DEPENDANCES:  $(SRCS)
+	$(MKDEP) -c$(CC) -oDEPENDANCES -t.lo $(CPPFLAGS) $?
+
+include DEPENDANCES
