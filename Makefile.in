@@ -59,12 +59,12 @@ install:: $(HEADERS)
 		$(INSTALL) -m 664 $(srcdir)/$$f $(INCLUDEDIR) ; \
 	done
 
-install:: gbm.pc
+install:: gbM.pc
 	$(MKINSTALLDIRS) $(LIBDIR)/pkgconfig
-	$(INSTALL) -m 664 gbm.pc $(LIBDIR)/pkgconfig
+	$(INSTALL) -m 664 gbM.pc $(LIBDIR)/pkgconfig
 
 distclean: clean
-	rm -f  TAGS Makefile gbm.pc
+	rm -f  TAGS Makefile gbM.pc
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(OBJS) $(GB_LIB)

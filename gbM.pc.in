@@ -3,7 +3,7 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: @PACKAGE_NAME@
+Name: gbM
 Description: Geometric computations for 6 DoF arms
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -lgb
