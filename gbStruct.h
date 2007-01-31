@@ -22,23 +22,6 @@ typedef struct Gb_v6 {
 } Gb_v6;
 
 #ifdef GB_GENOM
-typedef struct Gb_vitesse {
-  double x;
-  double y;
-  double z;
-  double rx;
-  double ry;
-  double rz;
-} Gb_vitesse;
-
-typedef struct Gb_force {
-  double x;
-  double y;
-  double z;
-  double rx;
-  double ry;
-  double rz;
-} Gb_force;
 #else
 typedef Gb_v6 Gb_vitesse;
 typedef Gb_v6 Gb_force;

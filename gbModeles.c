@@ -125,6 +125,31 @@ void Gb_MGD6rTh(Gb_6rParameters* bras, Gb_q6* eq,
   Gb_v3_cross_product(&(th->vx), &(th->vy), &(th->vz));
 }
 
+/*
+ * compute the configuration e1 e2 e3 for a 6R arm robot
+ * Inputs : 
+ *   bras : constants of the arm
+ *   eq : articulation coordinates
+ * output :
+ *   e1 : 1 ou -1
+ *   e2 : 1 ou -1
+ *   e3 : 1 ou -1
+ */
+void Gb_MGD6r_gete1e2e3(Gb_6rParameters* bras, Gb_q6* eq,
+			int* e1, int* e2, int* e3)
+{
+  double c2 = cos(eq->q2 - bras->of2);
+  double c3 = cos(eq->q3 - bras->of3);
+  double s2 = sin(eq->q2 - bras->of2);
+  double s3 = sin(eq->q3 - bras->of3);
+  double s5 = sin(eq->q5 - bras->of5);
+  double s23 = s2 * c3 + c2 * s3;
+  double d1  = c2 * bras->a2;
+  double d11   = s23 * bras->r4 + d1;
+  *e1 = (d11 >= 0) ? 1. : -1.;
+  *e2 = (c3  >= 0) ? 1. : -1.;
+  *e3 = (s5  >= 0) ? 1. : -1.;
+}
 
 /*
  * compute the direct geometric model of a 6R arm robot and the 
