@@ -24,9 +24,9 @@ if { [info exist GB_DONT_RELOAD] == 0 } {
     } else {
 	puts "Configuration Sun"
     }
-    exec make
+#    exec make
     
-    load ./[set env(HOSTTYPE)]/gb.so Gb
+    load libgb.so Gb
     #exec make clean
     
     set GB_DONT_RELOAD 1
