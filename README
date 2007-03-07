@@ -1,0 +1,20 @@
+
+cvs -d cvs.laas.fr:/cvs/openrobots co gbM
+cd gbM
+
+aclocal -I .
+autoconf
+libtoolize
+mkdir build
+cd build
+../configure --prefix=`pwd`/install --with-tcl=/usr/local/tcl-8.4/lib
+make
+make install
+
+
+cd install/share/gbM
+elwish
+lappend auto_path .
+source testGb.tcl
+
+
