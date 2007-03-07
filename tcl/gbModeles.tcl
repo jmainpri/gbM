@@ -2,6 +2,8 @@
 # Copyright (c) 2003 LAAS/CNRS -- RIA --
 # Daniel SIDOBRE -- fevrier 2003
 
+package require gbU
+package provide gbmModeles 0.0.0
 
 proc Gb_q6_get { Q } {
     return "[$Q cget -q1] [$Q cget -q2] [$Q cget -q3] [$Q cget -q4] [$Q cget -q5] [$Q cget -q6]"

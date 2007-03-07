@@ -41,9 +41,14 @@ INCLUDEDIR=	@includedir@/gbM
 PKGCONFIGDIR=   @libdir@/pkgconfig
 MODULESDIR=	@libdir@/gdM
 GBM_VERSION=	@VERSION@
+# installation directory for tcl files
+TCL_FILES_DIR=	@datadir@/gbM
 
 CC=		@CC@
+SWIG=		swig
+SWIG_TYPEMAP=	-I/usr/share/swig/1.3.31/tcl/typemaps.i
 MKDEP=		@MKDEP@
+MKINSTALLDIRS=	$(SHELL) $(abs_srcdir)/mkinstalldirs
 
 #CPPFLAGS= 	-I$(GDHE_CLIENT_SRC) -I$(GDHE_TOGL_SRC)
 CFLAGS=		@TCL_EXTRA_CFLAGS@
@@ -66,27 +71,6 @@ TCL_SHLIB_LDFLAGS=	@TCL_SHLIB_LDFLAGS@
 TCL_SHLIB_SUFFIX=	@TCL_SHLIB_SUFFIX@
 TCL_SHLIB_LD=		@TCL_SHLIB_LD@
 
-# OpenGL
-OPENGL_CPPFLAGS=	@OPENGL_CPPFLAGS@
-OPENGL_LDFLAGS=		@OPENGL_LDFLAGS@
-
-# XPM
-XPM_CPPFLAGS=		@XPM_CPPFLAGS@
-XPM_LDFLAGS=		@XPM_LDFLAGS@
-XPM_LIB=		@XPM_LIB@
-
-# JPEG
-JPEG_CPPFLAGS=		@JPEG_CPPFLAGS@
-JPEG_LDFLAGS=		@JPEG_LDFLAGS@
-JPEG_LIB=		@JPEG_LIB@
-
-# X window system
-X_CFLAGS=		@X_CFLAGS@
-X_LIBS=			@X_LIBS@
-X_PRE_LIBS=		@X_PRE_LIBS@
-X_EXTRA_LIBS=		@X_EXTRA_LIBS@
-X_LIB_XMU=		@LIB_XMU@
-
 # Other libs
 LIBS=			@LIBS@
 
@@ -96,8 +80,9 @@ LIBM=			-lm
 # GDHE lib
 LIBGB=	 		-lgb
 
-# installation directory
-GB_TCL_DIR=		$(DATADIR)/gbM/tcl
-
 # Source directories
 #GB_TCL_SRC=		$(top_srcdir)/srcTcl
+
+MAJOR=0
+MINOR=0
+TINY=0

@@ -1,19 +1,18 @@
-#! /usr/bin/env tclsh
-#
-# Copyright (C) 1996-2004 LAAS/CNRS
+# 
+# Copyright (C) 1996-2007 LAAS/CNRS 
 # All rights reserved.
-#
+# 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
-#
+# 
 #    - Redistributions of source code must retain the above copyright
 #      notice, this list of conditions and the following disclaimer.
 #    - Redistributions in binary form must reproduce the above
 #      copyright notice, this list of conditions and the following
 #      disclaimer in the documentation and/or other materials provided
 #      with the distribution.
-#
+# 
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -26,17 +25,69 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-#
+# 
 # $LAAS$
+# Makefile for gdhe
 #
-# Rebuild the package indexes for gbM
-#
+top_srcdir=	@top_srcdir@
+top_builddir=	@top_builddir@
+include ../Init.make
 
-if {[llength $argv] == 1} {
-    set dir [lindex $argv 0]
-} else {
-    set dir $gbM_library
-}
-puts "Rebuilding package index in $dir"
-pkg_mkIndex $dir
-exit 0
+INSTALL=		@INSTALL@
+INSTALL_PROGRAM=	@INSTALL_PROGRAM@
+
+CPPFLAGS+= -I.. @TCL_CPPFLAGS@
+
+vpath %.c ${top_srcdir}/src
+
+# les entetes
+HEADERS_= Proto_gb.h gb.h Proto_gbModeles.h gbStruct.h gbGENOM.h
+HEADERS= $(HEADERS_:%=${abs_srcdir}/src/%)
+
+# les sources
+SRCS = gb.c gbModeles.c
+
+OBJS = $(SRCS:%.c=%.lo)
+
+# La librairie:
+GB_LIB = libgb.la
+
+all:	$(GB_LIB)
+
+# Edition de liens
+$(GB_LIB): $(OBJS) 
+	$(LTLD) -o $@ -rpath $(LIBDIR) \
+	--version-info $(MAJOR):$(MINOR):$(TINY) $(OBJS)
+
+%.lo:	%.c
+	$(LIBTOOL) --mode=compile $(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+#%.lo: %.c
+#	$(LTCC) $(CPPFLAGS) $(CFLAGS) -c $< 
+
+
+install:: $(GB_LIB)
+	$(MKINSTALLDIRS) $(LIBDIR)
+	$(LIBTOOL) --mode=install $(INSTALL) $(GB_LIB) $(LIBDIR)
+
+
+install:: $(HEADERS)
+	$(MKINSTALLDIRS) $(INCLUDEDIR)
+	@for f in $(HEADERS); do \
+		echo "installing $$f"; \
+		$(INSTALL) -m 664 $(srcdir)/$$f $(INCLUDEDIR) ; \
+	done
+
+clean:
+	$(LIBTOOL) --mode=clean rm -f $(OBJS) $(PROG)
+	rm -f $(PKG_OBJS) $(PKG)
+
+distclean: clean
+	rm -f Makefile DEPENDANCES
+
+ifeq ($(findstring $(MAKECMDGOALS),clean),)
+depend DEPENDANCES: $(SRCS)
+	$(MKDEP) -c$(CC) -oDEPENDANCES -t.lo $(CPPFLAGS) $?
+
+include DEPENDANCES
+endif

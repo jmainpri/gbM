@@ -207,8 +207,15 @@ AC_SUBST(TCL_SHLIB_SUFFIX)
 AC_SUBST(TCL_LIB_FLAGS)
 AC_SUBST(TCL_DBGX)
 
+dnl  swig
+dnl include acincludeswig.m4
+AC_PROG_SWIG
+
 AC_OUTPUT(Makefile 
 	gbM.pc
 	Init.make
 	tcl/Makefile
+	tcl/mkIndex
+	src/Makefile
+	tclsrc/Makefile
 )

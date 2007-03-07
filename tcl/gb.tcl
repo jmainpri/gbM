@@ -2,7 +2,8 @@
 # Copyright (c) 2002 LAAS/CNRS -- RIA --
 # Daniel SIDOBRE -- mai 2002
 # 
-
+package require gb
+package provide gbM 0.0.0
 
 set gb_tcl_oldpwd [pwd]
 cd [file dirname [info script]]
@@ -18,19 +19,12 @@ proc gbload { } {
     } 
 }
 
-if { [info exist GB_DONT_RELOAD] == 0 } {
-    if { [set env(HOSTTYPE)] == "i386-linux" } {
-	puts "Configuration Linux"
-    } else {
-	puts "Configuration Sun"
-    }
-#    exec make
-    
-    load libgb.so Gb
-    #exec make clean
-    
-    set GB_DONT_RELOAD 1
-}
+#if { [info exist GB_DONT_RELOAD] == 0 } {
+#    puts "Loading gb"
+#    load gb.so Gb
+#    set GB_DONT_RELOAD 1
+#}
+
 
 # Pi
 set M_PI		3.14159265358979323846
@@ -85,6 +79,14 @@ proc Gb_force_get { v } {
 }
 
 proc Gb_force_set { args } {
+    eval Gb_v6_set $args
+}
+
+proc Gb_vitesse_get { v } {
+    return [Gb_v6_get $v]
+}
+
+proc Gb_vitesse_set { args } {
     eval Gb_v6_set $args
 }
 

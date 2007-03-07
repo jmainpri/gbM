@@ -30,83 +30,37 @@
 #
 # Makefile pour la librairie gb
 #
+top_srcdir=	@top_srcdir@
+include		Init.make
 
-prefix= @prefix@
-exec_prefix= @exec_prefix@
-LIBDIR= @libdir@
-INCLUDEDIR= @includedir@/gbM
-top_srcdir= @top_srcdir@
-include Init.make
+DISTNAME= @PACKAGE@-@VERSION@
 
-srcdir= @srcdir@
-top_builddir= .
+INSTALL=	@INSTALL@
 
-MKDEP=	@MKDEP@
-INSTALL= @INSTALL@
-MKINSTALLDIRS= /bin/sh ${top_srcdir}/mkinstalldirs
-LIBTOOL= @LIBTOOL@
-CC= @CC@
-
-# les entetes
-HEADERS= Proto_gb.h gb.h Proto_gbModeles.h gbStruct.h gbGENOM.h
-
-# Les sources
-SRCS = 	gbModeles.c gb.c
-
-# Les objects
-OBJS  =	$(SRCS:%.c=%.lo)
-
-# La librairie:
-GB_LIB = libgb.la
-MAJOR=0
-MINOR=0
-TINY=0
-
-VPATH= $(srcdir)
-
-SUBDIRS= tcl
+SUBDIRS= src tclsrc tcl
 
 MAKE_SUBDIRS= @for d in $(SUBDIRS); do $(MAKE) -C $$d $@ || exit 2; done
 
-all:	$(GB_LIB)
+all: Makefile
 	$(MAKE_SUBDIRS)
 
-# Edition de liens
-$(GB_LIB): $(OBJS) 
-	$(LIBTOOL) --mode=link $(CC) -o $@ -rpath $(LIBDIR) \
-	--version-info $(MAJOR):$(MINOR):$(TINY) $(OBJS)
-
-
-%.lo:	%.c
-	$(LIBTOOL) --mode=compile $(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
-
-TAGS :
-	etags *.h *.c
-
-install:: $(GB_LIB)
-	$(MKINSTALLDIRS) $(LIBDIR)
+depend:
 	$(MAKE_SUBDIRS)
-	$(LIBTOOL) --mode=install $(INSTALL) $(GB_LIB) $(LIBDIR)
-
-install:: $(HEADERS)
-	$(MKINSTALLDIRS) $(INCLUDEDIR)
-	@for f in $(HEADERS); do \
-		echo "installing $$f"; \
-		$(INSTALL) -m 664 $(srcdir)/$$f $(INCLUDEDIR) ; \
-	done
 
 install:: gbM.pc
+	@echo LIBTOOL= $(LIBTOOL)
 	$(MKINSTALLDIRS) $(LIBDIR)/pkgconfig
-	$(INSTALL) -m 664 gbM.pc $(LIBDIR)/pkgconfig
+	$(INSTALL) -m 664 gbM.pc $(PKGCONFIGDIR)
+	$(MAKE_SUBDIRS)
 
 distclean: clean
 	rm -f  TAGS Makefile gbM.pc
+	$(MAKE_SUBDIRS)
 
 clean:
-	$(LIBTOOL) --mode=clean rm -f $(OBJS) $(GB_LIB)
+	$(MAKE_SUBDIRS)
 
-
-depend DEPENDANCES:  $(SRCS)
-	$(MKDEP) -c$(CC) -oDEPENDANCES -t.lo $(CPPFLAGS) $?
-
-include DEPENDANCES
+reconf:
+	cd $(top_srcdir); aclocal -I .; autoconf; libtoolize --force
+	./config.status --recheck
+	./config.status

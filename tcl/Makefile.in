@@ -31,21 +31,22 @@
 top_srcdir=	@top_srcdir@
 include		../Init.make
 
+SRCDIR=		@srcdir@
 INSTALL=	@INSTALL@
 INSTALL_DATA=	@INSTALL_DATA@
 
-TCL_FILES=	gbModeles.tcl  gbModelesTest.tcl \
-	gb_p3d.tcl  gb.tcl  gbTest.tcl
+FILES=	gbModeles.tcl gb.tcl testGb.tcl
 
 all:	
 	@echo "Nothing to be done here"
 
 install:
-	@for f in $(TCL_FILES); do \
-		echo "installing $$f in $(DESTDIR)$(GBM_TCL_DIR)"; \
-		$(INSTALL_DATA) @srcdir@/$$f $(DESTDIR)$(GBM_TCL_DIR) ; \
+	$(MKINSTALLDIRS) $(TCL_FILES_DIR)
+	@for f in $(FILES); do \
+		echo "installing $$f in $(TCL_FILES_DIR)"; \
+		$(INSTALL_DATA) $(SRCDIR)/$$f $(TCL_FILES_DIR) ; \
 	done
-	tclsh @srcdir@/mkIndex
+	tclsh mkIndex $(TCL_FILES_DIR) $(LIBDIR)
 
 depend:
 	@echo "No dependencies here"

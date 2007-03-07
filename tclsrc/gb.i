@@ -3,8 +3,8 @@
  * Daniel SIDOBRE -- mai 2002
  */
 %module gb
-%include "/usr/lib/swig1.3/tcl/typemaps.i"
-/* %include "/home/daniel/mytmp/lib/swig1.3/tcl/typemaps.i" */
+%include "typemaps.i"
+
 %{
 #include "gb.h"
 %}
