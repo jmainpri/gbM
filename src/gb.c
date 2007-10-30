@@ -484,9 +484,22 @@ void Gb_quat_x_v3(const Gb_quat* q, const Gb_v3* v, Gb_v3* vs)
 }
 void Gb_quat_x_quat(const Gb_quat* q1, const Gb_quat* q2, Gb_quat* qs)
 {
-  /*
-   * qs.w = q1.w * q2.w - q1.v . q2.v
-   * qs.v = q1.w * q2.v + q2.w * q1.v + q1.v /\ q2.v
-   */
+  /* Xavier BROQUERE Laas */
+  //     Multiplication de deux quaternions
+  //     
+  //       Q1xQ2 = (w1.w2 - v1.v2, w1.v2 + w2.v1 + v1/\v2)
+  //     
+  //     Où :
+  //     
+  //     v1 = (x,y,z) de Q1
+  //     w1 = (w)     de Q1
+  //     v2 = (x,y,z) de Q2
+  //     w2 = (w)     de Q2
+  
+  qs->w = (q1->w * q2->w) - (q1->vx * q2->vx) - (q1->vy * q2->vy) - (q1->vz * q2->vz);
+  qs->vx = (q1->w * q2->vx) + (q2->w * q1->vx) + ((q1->vy * q2->vz) - (q1->vz * q2->vy)); 
+  qs->vy = (q1->w * q2->vy) + (q2->w * q1->vy) + ((q1->vz * q2->vx) - (q1->vx * q2->vz)); 
+  qs->vz = (q1->w * q2->vz) + (q2->w * q1->vz) + ((q1->vx * q2->vy) - (q1->vy * q2->vx)); 
+
 }
 
