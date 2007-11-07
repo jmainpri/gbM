@@ -21,6 +21,12 @@ typedef enum Gb_statusMGI {
 typedef struct Gb_6rParameters {
   double a2, r4;
   double epsilon;  /* to determine if the position is singular */
+  double of1;
+  double of2;
+  double of3;
+  double of4;
+  double of5;
+  double of6;
 } Gb_6rParameters;
 
 typedef struct Gb_q6 {
@@ -53,6 +59,10 @@ void Gb_MGD6r_6Th(Gb_6rParameters* bras, Gb_q6* eq, Gb_dataMGD* d,
 Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
 				int e1, int e2, int e3, Gb_q6* old_q,
 				Gb_dataMGD* d, Gb_q6* sq);
+
+Gb_statusMGI Gb_MGI6rTh_O(Gb_6rParameters* bras, Gb_th* eth,
+			  Gb_q6* old_q,
+			  Gb_dataMGD* d, Gb_q6* sq);
 
 typedef struct Gb_jac {
   Gb_v6 c1;

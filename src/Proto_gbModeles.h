@@ -14,6 +14,7 @@ extern void Gb_MGD6rTh ( Gb_6rParameters* bras, Gb_q6* eq, Gb_dataMGD* d, Gb_th*
 extern void Gb_MGD6r_gete1e2e3(Gb_6rParameters* bras, Gb_q6* eq, int* e1, int* e2, int* e3);
 extern void Gb_MGD6r_6Th ( Gb_6rParameters* bras, Gb_q6* eq, Gb_dataMGD* d, Gb_th* th01, Gb_th* th02, Gb_th* th03, Gb_th* th04, Gb_th* th05, Gb_th* th06 );
 extern Gb_statusMGI Gb_MGI6rTh ( Gb_6rParameters* bras, Gb_th* eth, int e1, int e2, int e3, Gb_q6* old_q, Gb_dataMGD* d, Gb_q6* sq );
+Gb_statusMGI Gb_MGI6rTh_O(Gb_6rParameters* bras, Gb_th* eth, Gb_q6* old_q, Gb_dataMGD* d, Gb_q6* sq);
 extern void Gb_MDD6r ( Gb_6rParameters* bras, Gb_dataMGD* d, Gb_th* t06, Gb_jac* jac );
 
 #else /* __STDC__ */

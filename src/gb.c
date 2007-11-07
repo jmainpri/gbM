@@ -93,7 +93,7 @@ void Gb_v3_product_r(const Gb_v3* u, double r, Gb_v3* output)
   output->z = u->z * r;
 } 
 
-void Gb_dep_set(Gb_dep *dep, double x, double y, double z, 
+void Gb_dep_set(Gb_dep* dep, double x, double y, double z, 
 		double rx, double ry, double rz, double a)
 {
   dep->x  = x;
@@ -105,8 +105,8 @@ void Gb_dep_set(Gb_dep *dep, double x, double y, double z,
   dep->a  = a;
 }
 
-void Gb_dep_get(Gb_dep *dep, double *x, double *y, double *z, 
-		double *rx, double *ry, double *rz, double *a)
+void Gb_dep_get(Gb_dep* dep, double* x, double* y, double* z, 
+		double* rx, double* ry, double* rz, double* a)
 {
   *x  = dep->x ;
   *y  = dep->y ;
@@ -119,7 +119,7 @@ void Gb_dep_get(Gb_dep *dep, double *x, double *y, double *z,
 
 
 /* Calcul d'une matrice de préproduit vectoriel */
-void Gb_m33_ppv(const Gb_v3 *ve, Gb_m33 *ms)
+void Gb_m33_ppv(const Gb_v3* ve, Gb_m33* ms)
 {
   ms->vx.x = 0;
   ms->vx.y = ve->z;
@@ -159,7 +159,14 @@ void Gb_quat_dep(const Gb_quat* q, Gb_dep* dep)
   dep->x = q->x;
   dep->y = q->y;
   dep->z = q->z;
-  dep->a = acos(q->w) * 2.;
+  /* problem if w is 1.0000000000000002 : if (w > 1) dep->a = 0; ... */
+  if (q->w >  1.) {
+    dep->a = 0;
+  } else if (q->w < -1.) {
+    dep->a = M_PI;
+  } else {
+    dep->a = acos(q->w) * 2.;
+  }
   sinq = sqrt(1. - q->w * q->w);
   if (sinq == 0) {
     dep->rx = 0;
@@ -337,9 +344,9 @@ void Gb_thInv_x_v3(const Gb_th* th, const Gb_v3* v, Gb_v3* vs)
     vu = &v3;
   else
     vu = vs;
-  vs->x = th->vx.x * v->x + th->vx.y * v->y + th->vx.z * v->z;
-  vs->y = th->vy.x * v->x + th->vy.y * v->y + th->vy.z * v->z;
-  vs->z = th->vz.x * v->x + th->vz.y * v->y + th->vz.z * v->z;
+  vu->x = th->vx.x * v->x + th->vx.y * v->y + th->vx.z * v->z;
+  vu->y = th->vy.x * v->x + th->vy.y * v->y + th->vy.z * v->z;
+  vu->z = th->vz.x * v->x + th->vz.y * v->y + th->vz.z * v->z;
   if (vu != vs) {
     vs->x = vu->x;
     vs->y = vu->y;
@@ -362,7 +369,7 @@ void Gb_thInv_x_v6(const Gb_th* th, const Gb_v6* v, Gb_v6* vs)
 void Gb_th_produit(const Gb_th* a, const Gb_th* b, Gb_th* s)
 {
   Gb_th temp;
-  Gb_th *u;
+  Gb_th* u;
   if (a == s || b == s) {
     u = &temp;
   } else {
@@ -472,34 +479,208 @@ void Gb_th_x_vitesse(const Gb_th* th, const Gb_vitesse* v, Gb_vitesse* vs)
   vs->z = vs3->z  + th->vp.x * vsr3->y - th->vp.y * vsr3->x;
 }
 
-void Gb_quat_x_v3(const Gb_quat* q, const Gb_v3* v, Gb_v3* vs)
+void Gb_quat_x_v3(const Gb_quat* q, const Gb_v3* u, Gb_v3* vs)
 {
-  /*  ?????*/
+  Gb_th th;
+
+  Gb_quat_th(q, &th);
+  Gb_th_x_v3(&th, u, vs);
   /*
-   * soit v_q le quaternion ( 0 v)
-   * soit vs_q le quaternion (0 vs)
-   * vs_q = q * v_q * q_inv
-   *
+   * soit q le quaternion q=(w v)
+   * soit (0 u) le quaternion 
+   * vs = (w v) (0 u) (w -v)
+   *    = (-v.u   w u + v x u) (w -v)
+   *    = ( 0   (v.u)v + w(w u + v x u) (w u + v x u) x (-v) )
+   *    = ( 0   (v.u)v + ww u + w v x u + w (v x u) - (v x u) x v )
+   * See Rotation Representations and Performance Issues by David Eberly
+   *   at Geometric Tools, Inc.   http://www.geometrictools.com
+   * The transformation of V by a rotation matrix is the product U = RV
+   * and requires 9 multiplications and 6 additions for a total of 15
+   * operations.
+   * If V = (v0 , v1 , v2 ) and if V = v0 i + v1 j + v2 k is the
+   *  corresponding quaternion with zero w component, then the rotate
+   *  vector U = (u0 , u1 , u2 ) is computed as U = q V q~. Applying the
+   *  general formula for quaternion multiplication directly, the product
+   *  p = q V requires 16 multiplications and 12 additions. The product
+   *  pq also uses the same number of operations. The total operation
+   *  count is 56. However, since V has no w term, p only requires 12
+   *  multiplications and 8 additions­one term is theoretically zero, so
+   *  no need to compute it. We also know that U has no w term, so the
+   *  product pq~ only requires 12 multiplications and 9 additions. Using
+   *  these optimizations, the total operation count is 41. Observe that
+   *  conversion from quaternion q to rotation matrix R requires 12
+   *  multiplications and 12 additions. Transforming V by R takes 15
+   *  operations. Therefore, the process of converting to rotation and
+   *  multiplying uses 39 operations, two less than calculating q V q~.
+   *  Purists who implement quaternion libraries and only use quaternions
+   *  will sadly lose a lot of cycles when transforming large sets of 
+   *  vertices.
+   * 
+   *   Gb_v3 vxu;
+   *   Gb_v3 vxuxv;
+   *   Gb_v3 v;
+   *   double vu;
+   *   double w2;
+   * 
+   *   v.x = q->vx;
+   *   v.y = q->vy;
+   *   v.z = q->vz;
+   *   vu = Gb_v3_prs(&v, u);
+   *   Gb_v3_cross_product(&v, u, &vxu);
+   *   Gb_v3_cross_product(&vxu, &v, &vxuxv);
+   *   w2 = q->w * q->w;
+   *   vs->x = -vu * v.x + w2 * u->x + q->w * vxu.x - vxuxv.x;
+   *   vs->y = -vu * v.y + w2 * u->y + q->w * vxu.y - vxuxv.y;
+   *   vs->z = -vu * v.z + w2 * u->z + q->w * vxu.z - vxuxv.z;
    */
 }
+
+
+inline Gb_v3* Gb_quat_get_v3(Gb_quat* q) {
+  return (Gb_v3*) q;
+}
+
 void Gb_quat_x_quat(const Gb_quat* q1, const Gb_quat* q2, Gb_quat* qs)
 {
-  /* Xavier BROQUERE Laas */
-  //     Multiplication de deux quaternions
-  //     
-  //       Q1xQ2 = (w1.w2 - v1.v2, w1.v2 + w2.v1 + v1/\v2)
-  //     
-  //     Où :
-  //     
-  //     v1 = (x,y,z) de Q1
-  //     w1 = (w)     de Q1
-  //     v2 = (x,y,z) de Q2
-  //     w2 = (w)     de Q2
-  
-  qs->w = (q1->w * q2->w) - (q1->vx * q2->vx) - (q1->vy * q2->vy) - (q1->vz * q2->vz);
-  qs->vx = (q1->w * q2->vx) + (q2->w * q1->vx) + ((q1->vy * q2->vz) - (q1->vz * q2->vy)); 
-  qs->vy = (q1->w * q2->vy) + (q2->w * q1->vy) + ((q1->vz * q2->vx) - (q1->vx * q2->vz)); 
-  qs->vz = (q1->w * q2->vz) + (q2->w * q1->vz) + ((q1->vx * q2->vy) - (q1->vy * q2->vx)); 
+  /*
+   * qs.w = q1.w * q2.w - q1.v . q2.v
+   * qs.v = q1.w * q2.v + q2.w * q1.v + q1.v /\ q2.v
+   *    Translation:
+   *  qs_t = q1 * q2
+   */
+  Gb_quat output;
+  Gb_quat* qo;
+  if (qs == q1 || qs == q2) 
+    qo = &output;
+  else
+    qo = qs;
+  qo->w = q1->w * q2->w  - q1->vx * q2->vx - q1->vy * q2->vy - q1->vz * q2->vz;
+  qo->vx= q1->w * q2->vx + q1->vx * q2->w  + q1->vy * q2->vz - q1->vz * q2->vy;
+  qo->vy= q1->w * q2->vy - q1->vx * q2->vz + q1->vy * q2->w  + q1->vz * q2->vx;
+  qo->vz= q1->w * q2->vz + q1->vx * q2->vy - q1->vy * q2->vx + q1->vz * q2->w;
+  if (qo != qs) {
+    qs->w  = output.w;
+    qs->vx = output.vx;
+    qs->vy = output.vy;
+    qs->vz = output.vz;
+  }
+  Gb_quat_x_v3(q1, Gb_quat_get_v3((Gb_quat*) q2), Gb_quat_get_v3(&output));
+  qs->x = output.x + q1->x;
+  qs->y = output.y + q1->y;
+  qs->z = output.z + q1->z;
+}
 
+void Gb_quat_inverse(const Gb_quat* qi, Gb_quat* qo)
+{
+  qo->x = -qi->x;
+  qo->y = -qi->y;
+  qo->z = -qi->z;
+  qo->vx = -qi->vx;
+  qo->vy = -qi->vy;
+  qo->vz = -qi->vz;
+  qo->w = qi->w;
+  Gb_quat_x_v3(qo, Gb_quat_get_v3(qo), Gb_quat_get_v3(qo));
+}
+
+void Gb_quat_conjugue(const Gb_quat* qi, Gb_quat* qo)
+{
+  qo->z = -qi->x;
+  qo->y = -qi->y;
+  qo->x = -qi->z;
+  qo->vz = -qi->vx;
+  qo->vy = -qi->vy;
+  qo->vx = -qi->vz;
+  qo->w = qi->w;
+}
+
+void Gb_quat_interpole(const Gb_quat* q1, const Gb_quat* q2, double s, 
+		       Gb_quat* qo)
+{
+  Gb_quat q1_inverse;
+  Gb_quat q1q2;
+  Gb_quat q1q2neg;
+  Gb_dep d_12;
+  Gb_dep d_12neg;
+  
+  Gb_quat_inverse(q1, &q1_inverse);
+  Gb_quat_x_quat(&q1_inverse, q2, &q1q2);
+  q1_inverse.vz = -q1_inverse.vz;
+  q1_inverse.vy = -q1_inverse.vy;
+  q1_inverse.vx = -q1_inverse.vx;
+  q1_inverse.w  = -q1_inverse.w;
+  Gb_quat_x_quat(&q1_inverse, q2, &q1q2neg);
+  Gb_quat_dep(&q1q2, &d_12);
+  Gb_quat_dep(&q1q2neg, &d_12neg);
+  if (fabs(d_12.a) < fabs(d_12neg.a)) {
+    d_12.x *= s;
+    d_12.y *= s;
+    d_12.z *= s;
+    d_12.a *= s;
+    Gb_dep_quat(&d_12, &q1q2);
+  } else {
+    d_12neg.x *= s;
+    d_12neg.y *= s;
+    d_12neg.z *= s;
+    d_12neg.a *= s;
+    Gb_dep_quat(&d_12neg, &q1q2);
+  }
+  Gb_quat_x_quat(q1, &q1q2, qo);
+}
+  
+int Gb_quat_interpole_dep(const Gb_dep* d1, const Gb_dep* d2, double s, 
+			   Gb_dep* d_o)
+{
+  Gb_v3 v1;
+  Gb_v3 v2;
+  double module;
+
+  module = sqrt(d1->rx * d1->rx + d1->ry * d1->ry + d1->rz * d1->rz);
+  if (module < 1e-10) 
+    return 1; /* ERROR */
+  v1.x = d1->rx * d1->a / module;
+  v1.y = d1->ry * d1->a / module;
+  v1.z = d1->rz * d1->a / module;  
+  module = sqrt(d2->rx * d2->rx + d2->ry * d2->ry + d2->rz * d2->rz);
+  if (module < 1e-10) 
+    return 2; /* ERROR */
+  v2.x = d2->rx * d2->a / module;
+  v2.y = d2->ry * d2->a / module;
+  v2.z = d2->rz * d2->a / module;  
+  
+  d_o->x  = d1->x + ( d2->x - d1->x ) * s;
+  d_o->y  = d1->y + ( d2->y - d1->y ) * s;
+  d_o->z  = d1->z + ( d2->z - d1->z ) * s;
+  d_o->rx = v1.x  + ( v2.x  - v1.x  ) * s;
+  d_o->ry = v1.y  + ( v2.y  - v1.y  ) * s;
+  d_o->rz = v1.z  + ( v2.z  - v1.z  ) * s;
+  d_o->a = sqrt(d_o->rx * d_o->rx + d_o->ry * d_o->ry + d_o->rz * d_o->rz);
+  return 0; /* OK */
+}
+  
+int Gb_quat_interpole_dep2(const Gb_quat* q1, const Gb_quat* q2, double s, 
+			    Gb_quat* qo)
+{
+  Gb_dep d_01;
+  Gb_dep d_02;
+  Gb_dep d_1s;
+  int status;
+
+  Gb_quat_dep(q1, &d_01);
+  Gb_quat_dep(q2, &d_02);
+  status = Gb_quat_interpole_dep(&d_01, &d_02, s, &d_1s);
+  if (status != 0) 
+    return status;
+  Gb_dep_quat(&d_1s, qo);
+  return 0; /* OK */
+}
+  
+void Gb_quat_interpole_diff(const Gb_quat* q1, const Gb_quat* q2, double s,
+			    Gb_quat* qq, Gb_quat* qd, Gb_quat* qdiff)
+{
+  Gb_quat qqInverse;
+  Gb_quat_interpole(q1, q2, s, qq);
+  Gb_quat_interpole_dep2(q1, q2, s, qd);
+  Gb_quat_inverse(qq, &qqInverse);
+  Gb_quat_x_quat(&qqInverse, qd, qdiff);
 }
 

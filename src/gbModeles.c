@@ -358,6 +358,48 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   return ret;
 }
 
+//  Gb_MGI6rTh_O choose automatically the solution 
+//  Attention : to rewrite without calling 10 times MGI !
+Gb_statusMGI Gb_MGI6rTh_O(Gb_6rParameters* bras, Gb_th* eth,
+			  Gb_q6* old_q,
+			  Gb_dataMGD* d, Gb_q6* sq) 
+{
+  int e1, e2, e3;
+  Gb_statusMGI status;
+  
+  Gb_MGD6r_gete1e2e3(bras, old_q, &e1, &e2, &e3);
+  
+  status = Gb_MGI6rTh(bras, eth, e1, e2, e3, old_q, d, sq);
+  if (status == MGI_OK || status == MGI_SINGULAR)
+    return status;
+  status = Gb_MGI6rTh(bras, eth,  1,  1,  1, old_q, d, sq);
+  if (status == MGI_OK || status == MGI_SINGULAR)
+    return status;
+  status = Gb_MGI6rTh(bras, eth,  1,  1, -1, old_q, d, sq);
+  if (status == MGI_OK || status == MGI_SINGULAR)
+    return status;
+  status = Gb_MGI6rTh(bras, eth,  1, -1,  1, old_q, d, sq);
+  if (status == MGI_OK || status == MGI_SINGULAR)
+    return status;
+  status = Gb_MGI6rTh(bras, eth,  1, -1, -1, old_q, d, sq);
+  if (status == MGI_OK || status == MGI_SINGULAR)
+    return status;
+  status = Gb_MGI6rTh(bras, eth, -1,  1,  1, old_q, d, sq);
+  if (status == MGI_OK || status == MGI_SINGULAR)
+    return status;
+  status = Gb_MGI6rTh(bras, eth, -1,  1, -1, old_q, d, sq);
+  if (status == MGI_OK || status == MGI_SINGULAR)
+    return status;
+  status = Gb_MGI6rTh(bras, eth, -1, -1,  1, old_q, d, sq);
+  if (status == MGI_OK || status == MGI_SINGULAR)
+    return status;
+  status = Gb_MGI6rTh(bras, eth, -1, -1, -1, old_q, d, sq);
+  if (status == MGI_OK || status == MGI_SINGULAR)
+    return status;
+  status = Gb_MGI6rTh(bras, eth, e1, e2, e3, old_q, d, sq);
+  return status;
+}
+
 /*
  *  Gb_MDD6r calcule le modèle différentiel direct
  *

@@ -2,7 +2,7 @@
 # Copyright (c) 2003 LAAS/CNRS -- RIA --
 # Daniel SIDOBRE -- fevrier 2003
 
-package require gbU
+#package require gbU
 package provide gbmModeles 0.0.0
 
 proc Gb_q6_get { Q } {
