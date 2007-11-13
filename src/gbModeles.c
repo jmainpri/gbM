@@ -282,8 +282,9 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   d->d8  = d->s1 * eth->vz.x - d->c1 * eth->vz.y;
   d->d9  = d->c1 * eth->vx.x + d->s1 * eth->vx.y;
   d->d6  = d->s1 * eth->vx.x - d->c1 * eth->vx.y;
-  d->s3 = (d->d11*d->d11 + eth->vp.z*eth->vp.z - r4*r4 - a2*a2)
-    / (2. * a2 * r4);
+  d->d12 = d->d11*d->d11 + eth->vp.z*eth->vp.z;
+  d->s3 = (d->d12 - r4*r4 - a2*a2) 
+    / (2.0 * a2 * r4);
   if ((d->s3 < (-1.0+bras->epsilon)) || (d->s3 > (1.0-bras->epsilon))) {
     /*    printf("Pb MGI_SINGULAR s3 1-S3 1+S3 // l=  %g  %g  %g // %G\n", 
      *	   d->s3, 1-d->s3, 1+d->s3, sqrt(d->d11*d->d11 + eth->p.z*eth->p.z));
@@ -314,7 +315,7 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
     } */
   }
   d->c3 = e2 * sqrt(1 - d->s3 * d->s3);
-  d->d12 = d->d11 * d->d11 + eth->vp.z * eth->vp.z;
+  //  d->d12 = d->d11 * d->d11 + eth->vp.z * eth->vp.z;
   /* d->d12 = a2 * a2 + r4 * r4 + 2 * d->s3 * a2 * r4; */
   if (((d->d12 < 0.0) ? -d->d12 : d->d12) < bras->epsilon) {
     ret = MGI_SINGULAR; /* uniquement possible pour bras avec a2=r4 */
@@ -349,11 +350,6 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   sq->q4 = Gb_atan2(d->s4, d->c4) + bras->of4;
   d->d3 = d->c4 * d->d5 + d->s4 * d->d6;
   d->s6 =-d->s4 * d->d5 + d->c4 * d->d6;
-  /* if ( abs(s5) > abs(c5) */
-//  if ( ((d->s5 < 0.) ? -d->s5 : d->s5) > ((d->c5 < 0.) ? -d->c5 : d->c5))
-//    d->c6 =-d->d4 / d->s5;
-//  else 
-//    d->c6 = d->d3 / d->c5; 
   d->c6 = d->c5 * d->d3 - d->s5 * d->d4;
   sq->q6 = Gb_atan2(d->s6, d->c6) + bras->of6;
   return ret;
