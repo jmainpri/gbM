@@ -241,10 +241,11 @@ void Gb_MGD6r_6Th(Gb_6rParameters* bras, Gb_q6* eq, Gb_dataMGD* d,
 
 
 /*
- * arm6r_mgi_th : compute the inverse geometric model of a 6R arm
+ * Gb_MGI6rTh : compute the inverse geometric model of a 6R arm
  *  Allways return a value in sq. If the value is an exact value the
- *   function return MGI_OK. If the value is an approximate value
- *   the function return MGI_APPROXIMATE.
+ *   function return MGI_OK or MGI_SINGULAR if it is a singular
+ *   position. If the value is an approximate value the function
+ *   return MGI_APPROXIMATE. 
  *  The solution returned is defined by e1, e2 and e3.
  *  For singular position the function return the solution closer to
  *   the old_q value.
@@ -262,7 +263,6 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
 				int e1, int e2, int e3, Gb_q6* old_q,
 				Gb_dataMGD* d, Gb_q6* sq) 
 {
-  double ac5, as5;
   double a2, r4;
   Gb_statusMGI ret = MGI_OK;
   a2 = bras->a2;
@@ -270,7 +270,7 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   d->d11 = e1 * sqrt(eth->vp.x * eth->vp.x + eth->vp.y * eth->vp.y);
   if (((d->d11 < 0.0) ? -d->d11 : d->d11) < bras->epsilon) {
     ret = MGI_SINGULAR;
-    sq->q1 = old_q->q1;
+    sq->q1 = old_q->q1 - bras->of1;
     d->s1 = sin(sq->q1);
     d->c1 = cos(sq->q1);
   } else {
@@ -318,17 +318,19 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   /* d->d12 = a2 * a2 + r4 * r4 + 2 * d->s3 * a2 * r4; */
   if (((d->d12 < 0.0) ? -d->d12 : d->d12) < bras->epsilon) {
     ret = MGI_SINGULAR; /* uniquement possible pour bras avec a2=r4 */
-    sq->q2 = old_q->q2;
+    sq->q2 = old_q->q2 - bras->of2;
     d->c2 = cos(sq->q2);
     d->s2 = sin(sq->q2);
   } else {
     d->c2 = ((d->s3 * r4 + a2) * d->d11 - d->c3 * r4 * eth->vp.z) / d->d12;
     d->s2 = (d->c3 * r4 * d->d11 + (d->s3 * r4 + a2) * eth->vp.z) / d->d12;
   }
-  sq->q3 = Gb_atan2(d->s3, d->c3) + bras->of3;
-  sq->q2 = Gb_atan2(d->s2, d->c2) + bras->of2;
+  sq->q3 = Gb_atan2(d->s3, d->c3);
+  sq->q2 = Gb_atan2(d->s2, d->c2);
   d->s23 = sin(sq->q2 + sq->q3);
   d->c23 = cos(sq->q2 + sq->q3);
+  sq->q3 += bras->of3;
+  sq->q2 += bras->of2;
   d->d7 = d->c23 * d->d10 + d->s23 * eth->vz.z;
   d->c5 = d->s23 * d->d10 - d->c23 * eth->vz.z;
   d->d5 = d->c23 * d->d9  + d->s23 * eth->vx.z;
@@ -337,7 +339,7 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   sq->q5 = Gb_atan2(d->s5, d->c5) + bras->of5;
   if (((d->s5 < 0.0) ? -d->s5 : d->s5) < bras->epsilon) {
     if (ret != MGI_APPROXIMATE) ret = MGI_SINGULAR;
-    sq->q4 = old_q->q4;
+    sq->q4 = old_q->q4 - bras->of4;
     d->c4 = cos(sq->q4);
     d->s4 = sin(sq->q4);
   } else {
@@ -347,17 +349,30 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   sq->q4 = Gb_atan2(d->s4, d->c4) + bras->of4;
   d->d3 = d->c4 * d->d5 + d->s4 * d->d6;
   d->s6 =-d->s4 * d->d5 + d->c4 * d->d6;
-  if (d->s5 < 0.0) as5 = -d->s5; else as5 = d->s5;
-  if (d->c5 < 0.0) ac5 = -d->c5; else ac5 = d->c5;
   /* if ( abs(s5) > abs(c5) */
-  if ( ((d->s5 < 0.) ? -d->s5 : d->s5) > ((d->c5 < 0.) ? -d->c5 : d->c5))
-    d->c6 =-d->d4 / d->s5;
-  else 
-    d->c6 = d->d3 / d->c5; 
+//  if ( ((d->s5 < 0.) ? -d->s5 : d->s5) > ((d->c5 < 0.) ? -d->c5 : d->c5))
+//    d->c6 =-d->d4 / d->s5;
+//  else 
+//    d->c6 = d->d3 / d->c5; 
+  d->c6 = d->c5 * d->d3 - d->s5 * d->d4;
   sq->q6 = Gb_atan2(d->s6, d->c6) + bras->of6;
   return ret;
 }
 
+double Gb_q6Dist(Gb_q6* p, Gb_q6* q)
+{
+  double res = 0;
+  
+  res += (p->q1 - q->q1) * (p->q1 - q->q1);
+  res += (p->q2 - q->q2) * (p->q2 - q->q2);
+  res += (p->q3 - q->q3) * (p->q3 - q->q3);
+  res += (p->q4 - q->q4) * (p->q4 - q->q4);
+  res += (p->q5 - q->q5) * (p->q5 - q->q5);
+  res += (p->q6 - q->q6) * (p->q6 - q->q6);
+  res = sqrt(res);
+  return res;
+}
+  
 //  Gb_MGI6rTh_O choose automatically the solution 
 //  Attention : to rewrite without calling 10 times MGI !
 Gb_statusMGI Gb_MGI6rTh_O(Gb_6rParameters* bras, Gb_th* eth,
@@ -366,37 +381,41 @@ Gb_statusMGI Gb_MGI6rTh_O(Gb_6rParameters* bras, Gb_th* eth,
 {
   int e1, e2, e3;
   Gb_statusMGI status;
-  
+  double errMin=  1e10;
+  double erreur;
+  int eee[8][3] = {
+    {  1,  1,  1 },
+    {  1,  1, -1 },
+    {  1, -1,  1 },
+    {  1, -1, -1 },
+    { -1,  1,  1 },
+    { -1,  1, -1 },
+    { -1, -1,  1 },
+    { -1, -1, -1 }
+  };
+  int i, iMin = -1;
+
   Gb_MGD6r_gete1e2e3(bras, old_q, &e1, &e2, &e3);
   
   status = Gb_MGI6rTh(bras, eth, e1, e2, e3, old_q, d, sq);
   if (status == MGI_OK || status == MGI_SINGULAR)
     return status;
-  status = Gb_MGI6rTh(bras, eth,  1,  1,  1, old_q, d, sq);
-  if (status == MGI_OK || status == MGI_SINGULAR)
-    return status;
-  status = Gb_MGI6rTh(bras, eth,  1,  1, -1, old_q, d, sq);
-  if (status == MGI_OK || status == MGI_SINGULAR)
-    return status;
-  status = Gb_MGI6rTh(bras, eth,  1, -1,  1, old_q, d, sq);
-  if (status == MGI_OK || status == MGI_SINGULAR)
-    return status;
-  status = Gb_MGI6rTh(bras, eth,  1, -1, -1, old_q, d, sq);
-  if (status == MGI_OK || status == MGI_SINGULAR)
-    return status;
-  status = Gb_MGI6rTh(bras, eth, -1,  1,  1, old_q, d, sq);
-  if (status == MGI_OK || status == MGI_SINGULAR)
-    return status;
-  status = Gb_MGI6rTh(bras, eth, -1,  1, -1, old_q, d, sq);
-  if (status == MGI_OK || status == MGI_SINGULAR)
-    return status;
-  status = Gb_MGI6rTh(bras, eth, -1, -1,  1, old_q, d, sq);
-  if (status == MGI_OK || status == MGI_SINGULAR)
-    return status;
-  status = Gb_MGI6rTh(bras, eth, -1, -1, -1, old_q, d, sq);
-  if (status == MGI_OK || status == MGI_SINGULAR)
-    return status;
-  status = Gb_MGI6rTh(bras, eth, e1, e2, e3, old_q, d, sq);
+
+  for (i=0; i<8; i++) {
+    status = 
+      Gb_MGI6rTh(bras, eth,  eee[i][0],  eee[i][1], eee[i][2], old_q, d, sq);
+    if (status == MGI_OK || status == MGI_SINGULAR) {
+      erreur= Gb_q6Dist(sq, old_q);
+      if (erreur < errMin) {
+	errMin = erreur;
+	iMin = i;
+      }
+    }
+  }
+  if (iMin < 0) return MGI_ERROR;
+  // not optimum but more simple to garantee d is correct
+  status = 
+    Gb_MGI6rTh(bras, eth,  eee[i][0],  eee[i][1], eee[i][2], old_q, d, sq);
   return status;
 }
 
