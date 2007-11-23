@@ -6,9 +6,10 @@
 package require gbM
 package require tcltest
 
-
+# more verbose
 ::tcltest::configure -verbose {pass start}
 
+# new type of test to compare two list of double
 set doubleTestEpsilon 1e-10
 proc listDoubleTest { lexpected lresult } {
     foreach el1 $lresult el2 $lexpected {
@@ -22,6 +23,7 @@ proc listDoubleTest { lexpected lresult } {
 }
 ::tcltest::customMatch listDouble listDoubleTest 
 
+# function to test if a symbol exits and it has the good value
 proc testDefaultSymbol { symbol type value} {
     ::tcltest::test "symbol_[set type]_[set symbol]" \
 	"test if [set symbol] of type [set type] exist and its value" \
@@ -30,6 +32,7 @@ proc testDefaultSymbol { symbol type value} {
 	} -result $value
 }
 
+# function to compare two symbols
 proc testCompare { symbol1 symbol2 type} {
     ::tcltest::test "compare_[set symbol1]_[set symbol2]" \
 	"compare symbols [set symbol1] and [set symbol2]" \
@@ -40,20 +43,12 @@ proc testCompare { symbol1 symbol2 type} {
 	}
 }
 
+# random generator  -Pi <= x <= Pi
 proc pirand { } {
     return [ expr (rand() - 0.5) * 2. * 3.14159265358979323846 ]
 }
 
-foreach { symbol type value } {
-    V0 v3 "0 0 0"
-    VX v3 "1 0 0"
-    VY v3 "0 1 0"
-    VZ v3 "0 0 1"
-    ThId th "1 0 0  0 1 0  0 0 1  0 0 0"
-} {
-    testDefaultSymbol $symbol $type $value 
-}
-
+# function to test creation of symbols
 proc testCreate { symbol type } {
     ::tcltest::test "creating_[set type]_[set symbol]" \
 	"test creating [set symbol] of type [set type]" \
@@ -62,9 +57,8 @@ proc testCreate { symbol type } {
 	} -match regexp -result "_\[0-9a-f\]+_p_Gb_[set type]"
 }
 
-testCreate v3a v3
-testCreate v3b v3
-
+# function to test setting of symbols, interface : Gb_type_set/Gb_type_get
+#  example   Gb_v3_set Gb_v3_get
 proc testSet { symbol type args } {
     ::tcltest::test "testSet_[set type]_[set symbol]" \
 	"test setting [set symbol] of type [set type], values are [set args]" \
@@ -76,8 +70,8 @@ proc testSet { symbol type args } {
 	-result $args
 }
 
-testSet v3a v3 [pirand] [pirand] [pirand]
-
+# function to test object interface : symbol {configure/cget} field
+#   example  V0 cget -x
 proc testObject { symbol args } {
     set liste ""
     foreach {el val} $args {
@@ -97,6 +91,47 @@ proc testObject { symbol args } {
 	-result $liste
 }
 
+# as th is composed of 4 v3 we write special function
+proc testObjectTh { symbol args } {
+    set liste ""
+    foreach {el val} $args {
+	eval lappend liste $val
+    }
+    set lresult ""
+    ::tcltest::test "testObject_[set symbol]" \
+	"testObject [set symbol], fields are [set args]" \
+	-body {
+	    foreach {el vals} $args {
+		set v [$symbol cget $el]
+		foreach { el1 val } $vals {
+		    [set v] configure $el $val ???
+		lappend lresult [[set symbol] cget $el]
+	    }
+	    set lresult
+	} \
+	-match listDouble \
+	-result $liste
+	}
+}
+
+###
+### begining of tests
+###
+
+# Test if defaults symbols exists 
+foreach { symbol type value } {
+    V0 v3 "0 0 0"
+    VX v3 "1 0 0"
+    VY v3 "0 1 0"
+    VZ v3 "0 0 1"
+    ThId th "1 0 0  0 1 0  0 0 1  0 0 0"
+} {
+    testDefaultSymbol $symbol $type $value 
+}
+
+testCreate v3a v3
+testCreate v3b v3
+testSet v3a v3 [pirand] [pirand] [pirand]
 testObject v3a -x [pirand] -y [pirand] -z [pirand]
 
 #myTest unset v3a
@@ -118,18 +153,22 @@ testObject vsix -x 17 -y 73 -z 34 -rx 43 -ry 37 -rz 71
 
 testCreate th th
 eval testSet th th [Gb_th_get ThId]
+foreach {el vals} { -vx {0 0 1} -vy {0 1 0} -vz {0 0 1} -vp {0 0 0} } {
+    ::tcltest::test "testObject_th_[set el]" \
+	"testObject th [set el], values are [set vals]" \
+	-body {
+	    Gb_v3_get [th cget $el]
+	} \
+	-match listDouble \
+	-result $liste
+}
 
-return
-
-myTest Gb_th_get ThId
-
-myTest set gbTh_th [Gb_th gbTh_th]
-myTest eval Gb_th_set gbTh_th [Gb_th_get ThId]
-myTest Gb_th_print gbTh_th
+#?? myTest Gb_th_print gbTh_th
 	
-myTest Gb_th th1
-myTest Gb_th th2
-myTest Gb_th th3
+testCreate th1 th
+testCreate th2 th
+testCreate th3 th
+
 myTest Gb_dep dep
 myTest Gb_dep_set dep 1 0 0  1 0 0 1
 myTest Gb_dep_th dep th1

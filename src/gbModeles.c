@@ -270,9 +270,10 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   d->d11 = e1 * sqrt(eth->vp.x * eth->vp.x + eth->vp.y * eth->vp.y);
   if (((d->d11 < 0.0) ? -d->d11 : d->d11) < bras->epsilon) {
     ret = MGI_SINGULAR;
-    sq->q1 = old_q->q1 - bras->of1;
-    d->s1 = sin(sq->q1);
-    d->c1 = cos(sq->q1);
+ //   sq->q1 = old_q->q1 - bras->of1;
+    sq->q1 = old_q->q1;
+    d->s1 = sin(sq->q1 - bras->of1);
+    d->c1 = cos(sq->q1 - bras->of1);
   } else {
     d->s1 = eth->vp.y / d->d11;
     d->c1 = eth->vp.x / d->d11;
@@ -319,9 +320,10 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   /* d->d12 = a2 * a2 + r4 * r4 + 2 * d->s3 * a2 * r4; */
   if (((d->d12 < 0.0) ? -d->d12 : d->d12) < bras->epsilon) {
     ret = MGI_SINGULAR; /* uniquement possible pour bras avec a2=r4 */
-    sq->q2 = old_q->q2 - bras->of2;
-    d->c2 = cos(sq->q2);
-    d->s2 = sin(sq->q2);
+  //  sq->q2 = old_q->q2 - bras->of2;
+    sq->q2 = old_q->q2;
+    d->c2 = cos(sq->q2 - bras->of2);
+    d->s2 = sin(sq->q2 - bras->of2);
   } else {
     d->c2 = ((d->s3 * r4 + a2) * d->d11 - d->c3 * r4 * eth->vp.z) / d->d12;
     d->s2 = (d->c3 * r4 * d->d11 + (d->s3 * r4 + a2) * eth->vp.z) / d->d12;
@@ -340,9 +342,10 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   sq->q5 = Gb_atan2(d->s5, d->c5) + bras->of5;
   if (((d->s5 < 0.0) ? -d->s5 : d->s5) < bras->epsilon) {
     if (ret != MGI_APPROXIMATE) ret = MGI_SINGULAR;
-    sq->q4 = old_q->q4 - bras->of4;
-    d->c4 = cos(sq->q4);
-    d->s4 = sin(sq->q4);
+  //  sq->q4 = old_q->q4 - bras->of4;
+    sq->q4 = old_q->q4 ;
+    d->c4 = cos(sq->q4 - bras->of4);
+    d->s4 = sin(sq->q4 - bras->of4);
   } else {
     d->c4 = d->d7 / d->s5;
     d->s4 = d->d8 / d->s5;
