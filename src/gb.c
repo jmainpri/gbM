@@ -657,6 +657,25 @@ int Gb_quat_interpole_dep(const Gb_dep* d1, const Gb_dep* d2, double s,
   return 0; /* OK */
 }
   
+int Gb_quat_interpole_depV2(const Gb_dep* d1, const Gb_dep* d2, double s,
+			    Gb_dep* d_o)
+{
+  // 9 novemvre 2007 : reflexion
+  Gb_quat q01;
+  Gb_quat q02;
+  Gb_quat q10;
+
+  Gb_dep_quat(d1, &q01);
+  Gb_dep_quat(d2, &q02);
+  Gb_quat_inverse(&q01, &q10);
+  //  th01 x alpha d2-d1
+
+//  Gb_depth(d1, th01);
+//  Gb_th_inverse(th01, th10);
+  
+  
+}
+
 int Gb_quat_interpole_dep2(const Gb_quat* q1, const Gb_quat* q2, double s, 
 			    Gb_quat* qo)
 {

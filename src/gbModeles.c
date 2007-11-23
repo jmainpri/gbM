@@ -320,20 +320,17 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   /* d->d12 = a2 * a2 + r4 * r4 + 2 * d->s3 * a2 * r4; */
   if (((d->d12 < 0.0) ? -d->d12 : d->d12) < bras->epsilon) {
     ret = MGI_SINGULAR; /* uniquement possible pour bras avec a2=r4 */
-  //  sq->q2 = old_q->q2 - bras->of2;
-    sq->q2 = old_q->q2;
-    d->c2 = cos(sq->q2 - bras->of2);
-    d->s2 = sin(sq->q2 - bras->of2);
+    sq->q2 = old_q->q2 - bras->of2;
   } else {
     d->c2 = ((d->s3 * r4 + a2) * d->d11 - d->c3 * r4 * eth->vp.z) / d->d12;
     d->s2 = (d->c3 * r4 * d->d11 + (d->s3 * r4 + a2) * eth->vp.z) / d->d12;
+    sq->q2 = Gb_atan2(d->s2, d->c2);
   }
   sq->q3 = Gb_atan2(d->s3, d->c3);
-  sq->q2 = Gb_atan2(d->s2, d->c2);
   d->s23 = sin(sq->q2 + sq->q3);
   d->c23 = cos(sq->q2 + sq->q3);
-  sq->q3 += bras->of3;
   sq->q2 += bras->of2;
+  sq->q3 += bras->of3;
   d->d7 = d->c23 * d->d10 + d->s23 * eth->vz.z;
   d->c5 = d->s23 * d->d10 - d->c23 * eth->vz.z;
   d->d5 = d->c23 * d->d9  + d->s23 * eth->vx.z;
