@@ -37,12 +37,20 @@ Gb_6rParameters_epsilon_set gt6a 0.01
 
 proc Gb_jac_print { jac } {
     foreach ell { x y z rx ry rz } {
-	foreach elc { c0 c1 c2 c3 c4 c5 } {
-	    puts -nonewline "[[$jac cget -$elc] cget -$ell]\t"
-	}
-	puts ""
+#	foreach elc { c1 c2 c3 c4 c5 c6 } {
+#	    puts -nonewline "[[$jac cget -$elc] cget -$ell]\t"
+#	}
+#	puts ""
+	puts [format "%f\t%f\t%f\t%f\t%f\t%f" \
+		  [[$jac cget -c1] cget -$ell] \
+		  [[$jac cget -c2] cget -$ell] \
+		  [[$jac cget -c3] cget -$ell] \
+		  [[$jac cget -c4] cget -$ell] \
+		  [[$jac cget -c5] cget -$ell] \
+		  [[$jac cget -c6] cget -$ell] ]
     }
 }
+
 proc pirand { } {
     return [ expr (rand() - 0.5) * 2. * 3.14159265358979323846 ]
 }

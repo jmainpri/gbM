@@ -30,6 +30,18 @@ char* Gb_statusMGI_s(Gb_statusMGI u)
 
 #define SIGN(x) (((x) < 0 ) ? (-1) : (1))
 
+double Gb_atan2_offset(double y, double x, double offset, double oldQ)
+{
+  double a = atan2(y, x) + offset;
+  if ( (a - oldQ) > M_PI) {
+    a -= 2*M_PI;
+  } else {
+    if ( (a - oldQ) <= -M_PI)
+      a += 2*M_PI;
+  }
+  return a;
+}
+
 double Gb_atan2(double y, double x)
 {
   if (x == 0.) {
@@ -277,7 +289,8 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   } else {
     d->s1 = eth->vp.y / d->d11;
     d->c1 = eth->vp.x / d->d11;
-    sq->q1 = Gb_atan2 (d->s1, d->c1) + bras->of1;
+    //    sq->q1 = Gb_atan2 (d->s1, d->c1) + bras->of1;
+    sq->q1 = Gb_atan2_offset(d->s1, d->c1, bras->of1, old_q->q1);
   }
   d->d10 = d->c1 * eth->vz.x + d->s1 * eth->vz.y;
   d->d8  = d->s1 * eth->vz.x - d->c1 * eth->vz.y;
@@ -331,12 +344,25 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   d->c23 = cos(sq->q2 + sq->q3);
   sq->q2 += bras->of2;
   sq->q3 += bras->of3;
+  if ( (sq->q2 - old_q->q2) > M_PI) {
+    printf("1-- q2= %g  q2old= %g\n", sq->q2, old_q->q2);
+    sq->q2 -= 2*M_PI;
+  }
+  if ( (sq->q2 - old_q->q2) <= -M_PI) {
+    printf("2-- q2= %g  q2old= %g\n", sq->q2, old_q->q2);
+    sq->q2 += 2*M_PI;
+  }
+  if ( (sq->q3 - old_q->q3) > M_PI) sq->q3 -= 2*M_PI;
+  if ( (sq->q3 - old_q->q3) <= -M_PI) sq->q3 += 2*M_PI;
+  if (fabs(sq->q2) > 2*M_PI) 
+    printf("q2= %g  q2old= %g\n", sq->q2, old_q->q2);
   d->d7 = d->c23 * d->d10 + d->s23 * eth->vz.z;
   d->c5 = d->s23 * d->d10 - d->c23 * eth->vz.z;
   d->d5 = d->c23 * d->d9  + d->s23 * eth->vx.z;
   d->d4 = d->s23 * d->d9  - d->c23 * eth->vx.z;
   d->s5 = e3 * sqrt(d->d7 * d->d7 + d->d8 * d->d8);
-  sq->q5 = Gb_atan2(d->s5, d->c5) + bras->of5;
+  //  sq->q5 = Gb_atan2(d->s5, d->c5) + bras->of5;
+  sq->q5 = Gb_atan2_offset(d->s5, d->c5, bras->of5, old_q->q5);
   if (((d->s5 < 0.0) ? -d->s5 : d->s5) < bras->epsilon) {
     if (ret != MGI_APPROXIMATE) ret = MGI_SINGULAR;
   //  sq->q4 = old_q->q4 - bras->of4;
@@ -347,11 +373,12 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
     d->c4 = d->d7 / d->s5;
     d->s4 = d->d8 / d->s5;
   }
-  sq->q4 = Gb_atan2(d->s4, d->c4) + bras->of4;
+  //  sq->q4 = Gb_atan2(d->s4, d->c4) + bras->of4;
+  sq->q4 = Gb_atan2_offset(d->s4, d->c4, bras->of4, old_q->q4);
   d->d3 = d->c4 * d->d5 + d->s4 * d->d6;
   d->s6 =-d->s4 * d->d5 + d->c4 * d->d6;
   d->c6 = d->c5 * d->d3 - d->s5 * d->d4;
-  sq->q6 = Gb_atan2(d->s6, d->c6) + bras->of6;
+  sq->q6 = Gb_atan2_offset(d->s6, d->c6, bras->of6, old_q->q6);
   return ret;
 }
 
