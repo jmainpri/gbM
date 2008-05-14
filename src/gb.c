@@ -91,7 +91,28 @@ void Gb_v3_product_r(const Gb_v3* u, double r, Gb_v3* output)
   output->x = u->x * r;
   output->y = u->y * r;
   output->z = u->z * r;
-} 
+}
+
+ void Gb_v3_div_r(const Gb_v3* u, double r, Gb_v3* output)
+{
+  output->x = u->x / r;
+  output->y = u->y / r;
+  output->z = u->z / r;
+}// Added by X. Broquere
+
+void Gb_v3_set( Gb_v3* u, double x, double y, double z)
+{
+  u->x = x;
+  u->y = y;
+  u->z = z;
+  return;
+}// Added by X. Broquere; already exists in tcl
+
+void Gb_v3_print(const Gb_v3* u)
+{
+  printf("u->x = %f ; u->y = %f ; u->z = %f \n", u->x, u->y, u->z);
+  return;
+}// Added by X. Broquere; already exists in tcl
 
 void Gb_dep_set(Gb_dep* dep, double x, double y, double z, 
 		double rx, double ry, double rz, double a)
