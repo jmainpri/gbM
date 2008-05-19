@@ -8,17 +8,17 @@
 
 #include "gb.h"
 
-#ifdef VXWORKS 
+#ifdef VXWORKS
 #define	M_PI		3.14159265358979323846
 #define	M_PI_2		1.57079632679489661923
 #define	M_PI_4		0.78539816339744830962
-#include <stdlib.h> 
+#include <stdlib.h>
 #endif
 
 #include "SProto_gb.h"
 
-/* 
- * Gb_v3_norme : Calcule le vecteur normé s defini par e, 
+/*
+ * Gb_v3_norme : Calcule le vecteur normï¿½ s defini par e,
  *   si e=0 retourne (0,0,1)
  * accepte s=e
  */
@@ -114,7 +114,7 @@ void Gb_v3_print(const Gb_v3* u)
   return;
 }// Added by X. Broquere; already exists in tcl
 
-void Gb_dep_set(Gb_dep* dep, double x, double y, double z, 
+void Gb_dep_set(Gb_dep* dep, double x, double y, double z,
 		double rx, double ry, double rz, double a)
 {
   dep->x  = x;
@@ -126,7 +126,7 @@ void Gb_dep_set(Gb_dep* dep, double x, double y, double z,
   dep->a  = a;
 }
 
-void Gb_dep_get(Gb_dep* dep, double* x, double* y, double* z, 
+void Gb_dep_get(Gb_dep* dep, double* x, double* y, double* z,
 		double* rx, double* ry, double* rz, double* a)
 {
   *x  = dep->x ;
@@ -139,7 +139,7 @@ void Gb_dep_get(Gb_dep* dep, double* x, double* y, double* z,
 }
 
 
-/* Calcul d'une matrice de préproduit vectoriel */
+/* Calcul d'une matrice de prï¿½produit vectoriel */
 void Gb_m33_ppv(const Gb_v3* ve, Gb_m33* ms)
 {
   ms->vx.x = 0;
@@ -204,7 +204,7 @@ void Gb_quat_dep(const Gb_quat* q, Gb_dep* dep)
 void Gb_quat_th(const Gb_quat* q, Gb_th* th)
 {
   /* peu teste */
-  /* la version de la faq matrice et quaternion comporte une 
+  /* la version de la faq matrice et quaternion comporte une
    *   multiplication de moins (ww est inutile) mais au moins
    *   3 multiplication par deux de plus.
    */
@@ -425,9 +425,9 @@ void Gb_th_produit(const Gb_th* a, const Gb_th* b, Gb_th* s)
 }
 
 /*
- * th représente la matrice de passage de th_12
- * f représente une force exprimée dans le repère 2  f_2
- * fs est la force calculée dans le repère 1  fs_1
+ * th reprï¿½sente la matrice de passage de th_12
+ * f reprï¿½sente une force exprimï¿½e dans le repï¿½re 2  f_2
+ * fs est la force calculï¿½e dans le repï¿½re 1  fs_1
  *  ( fs3_1  ) = th_12 * f3_2
  *  ( fsr3_1 ) = th_12 * fr3_2  + th_12->vp ^ fs3_1
  */
@@ -508,7 +508,7 @@ void Gb_quat_x_v3(const Gb_quat* q, const Gb_v3* u, Gb_v3* vs)
   Gb_th_x_v3(&th, u, vs);
   /*
    * soit q le quaternion q=(w v)
-   * soit (0 u) le quaternion 
+   * soit (0 u) le quaternion
    * vs = (w v) (0 u) (w -v)
    *    = (-v.u   w u + v x u) (w -v)
    *    = ( 0   (v.u)v + w(w u + v x u) (w u + v x u) x (-v) )
@@ -525,7 +525,7 @@ void Gb_quat_x_v3(const Gb_quat* q, const Gb_v3* u, Gb_v3* vs)
    *  p = q V requires 16 multiplications and 12 additions. The product
    *  pq also uses the same number of operations. The total operation
    *  count is 56. However, since V has no w term, p only requires 12
-   *  multiplications and 8 additions­one term is theoretically zero, so
+   *  multiplications and 8 additionsï¿½one term is theoretically zero, so
    *  no need to compute it. We also know that U has no w term, so the
    *  product pq~ only requires 12 multiplications and 9 additions. Using
    *  these optimizations, the total operation count is 41. Observe that
@@ -534,15 +534,15 @@ void Gb_quat_x_v3(const Gb_quat* q, const Gb_v3* u, Gb_v3* vs)
    *  operations. Therefore, the process of converting to rotation and
    *  multiplying uses 39 operations, two less than calculating q V q~.
    *  Purists who implement quaternion libraries and only use quaternions
-   *  will sadly lose a lot of cycles when transforming large sets of 
+   *  will sadly lose a lot of cycles when transforming large sets of
    *  vertices.
-   * 
+   *
    *   Gb_v3 vxu;
    *   Gb_v3 vxuxv;
    *   Gb_v3 v;
    *   double vu;
    *   double w2;
-   * 
+   *
    *   v.x = q->vx;
    *   v.y = q->vy;
    *   v.z = q->vz;
@@ -571,7 +571,7 @@ void Gb_quat_x_quat(const Gb_quat* q1, const Gb_quat* q2, Gb_quat* qs)
    */
   Gb_quat output;
   Gb_quat* qo;
-  if (qs == q1 || qs == q2) 
+  if (qs == q1 || qs == q2)
     qo = &output;
   else
     qo = qs;
@@ -614,7 +614,7 @@ void Gb_quat_conjugue(const Gb_quat* qi, Gb_quat* qo)
   qo->w = qi->w;
 }
 
-void Gb_quat_interpole(const Gb_quat* q1, const Gb_quat* q2, double s, 
+void Gb_quat_interpole(const Gb_quat* q1, const Gb_quat* q2, double s,
 		       Gb_quat* qo)
 {
   Gb_quat q1_inverse;
@@ -622,7 +622,7 @@ void Gb_quat_interpole(const Gb_quat* q1, const Gb_quat* q2, double s,
   Gb_quat q1q2neg;
   Gb_dep d_12;
   Gb_dep d_12neg;
-  
+
   Gb_quat_inverse(q1, &q1_inverse);
   Gb_quat_x_quat(&q1_inverse, q2, &q1q2);
   q1_inverse.vz = -q1_inverse.vz;
@@ -647,8 +647,8 @@ void Gb_quat_interpole(const Gb_quat* q1, const Gb_quat* q2, double s,
   }
   Gb_quat_x_quat(q1, &q1q2, qo);
 }
-  
-int Gb_quat_interpole_dep(const Gb_dep* d1, const Gb_dep* d2, double s, 
+
+int Gb_quat_interpole_dep(const Gb_dep* d1, const Gb_dep* d2, double s,
 			   Gb_dep* d_o)
 {
   Gb_v3 v1;
@@ -656,18 +656,18 @@ int Gb_quat_interpole_dep(const Gb_dep* d1, const Gb_dep* d2, double s,
   double module;
 
   module = sqrt(d1->rx * d1->rx + d1->ry * d1->ry + d1->rz * d1->rz);
-  if (module < 1e-10) 
+  if (module < 1e-10)
     return 1; /* ERROR */
   v1.x = d1->rx * d1->a / module;
   v1.y = d1->ry * d1->a / module;
-  v1.z = d1->rz * d1->a / module;  
+  v1.z = d1->rz * d1->a / module;
   module = sqrt(d2->rx * d2->rx + d2->ry * d2->ry + d2->rz * d2->rz);
-  if (module < 1e-10) 
+  if (module < 1e-10)
     return 2; /* ERROR */
   v2.x = d2->rx * d2->a / module;
   v2.y = d2->ry * d2->a / module;
-  v2.z = d2->rz * d2->a / module;  
-  
+  v2.z = d2->rz * d2->a / module;
+
   d_o->x  = d1->x + ( d2->x - d1->x ) * s;
   d_o->y  = d1->y + ( d2->y - d1->y ) * s;
   d_o->z  = d1->z + ( d2->z - d1->z ) * s;
@@ -677,7 +677,7 @@ int Gb_quat_interpole_dep(const Gb_dep* d1, const Gb_dep* d2, double s,
   d_o->a = sqrt(d_o->rx * d_o->rx + d_o->ry * d_o->ry + d_o->rz * d_o->rz);
   return 0; /* OK */
 }
-  
+
 int Gb_quat_interpole_depV2(const Gb_dep* d1, const Gb_dep* d2, double s,
 			    Gb_dep* d_o)
 {
@@ -693,11 +693,11 @@ int Gb_quat_interpole_depV2(const Gb_dep* d1, const Gb_dep* d2, double s,
 
 //  Gb_depth(d1, th01);
 //  Gb_th_inverse(th01, th10);
-  
-  
+
+
 }
 
-int Gb_quat_interpole_dep2(const Gb_quat* q1, const Gb_quat* q2, double s, 
+int Gb_quat_interpole_dep2(const Gb_quat* q1, const Gb_quat* q2, double s,
 			    Gb_quat* qo)
 {
   Gb_dep d_01;
@@ -708,12 +708,12 @@ int Gb_quat_interpole_dep2(const Gb_quat* q1, const Gb_quat* q2, double s,
   Gb_quat_dep(q1, &d_01);
   Gb_quat_dep(q2, &d_02);
   status = Gb_quat_interpole_dep(&d_01, &d_02, s, &d_1s);
-  if (status != 0) 
+  if (status != 0)
     return status;
   Gb_dep_quat(&d_1s, qo);
   return 0; /* OK */
 }
-  
+
 void Gb_quat_interpole_diff(const Gb_quat* q1, const Gb_quat* q2, double s,
 			    Gb_quat* qq, Gb_quat* qd, Gb_quat* qdiff)
 {
@@ -724,3 +724,26 @@ void Gb_quat_interpole_diff(const Gb_quat* q1, const Gb_quat* q2, double s,
   Gb_quat_x_quat(&qqInverse, qd, qdiff);
 }
 
+void Gb_q6_set(Gb_q6* s, double q1, double q2, double q3, double q4,
+							 double q5, double q6)
+{
+	s->q1 = q1;
+	s->q2 = q2;
+	s->q3 = q3;
+	s->q4 = q4;
+	s->q5 = q5;
+	s->q6 = q6;
+	return;
+}
+
+void Gb_q6_get(const Gb_q6* e, double* q1, double* q2, double* q3, double* q4,
+							 double* q5, double* q6)
+{
+	*q1 = e->q1;
+	*q2 = e->q2;
+	*q3 = e->q3;
+	*q4 = e->q4;
+	*q5 = e->q5;
+	*q6 = e->q6;
+	return;
+}

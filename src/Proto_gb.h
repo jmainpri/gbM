@@ -52,7 +52,8 @@ extern void Gb_quat_interpole ( const Gb_quat* q1, const Gb_quat* q2, double s, 
 extern int Gb_quat_interpole_dep ( const Gb_dep* d1, const Gb_dep* d2, double s, Gb_dep* d_o );
 extern int Gb_quat_interpole_dep2 ( const Gb_quat* q1, const Gb_quat* q2, double s, Gb_quat* qo );
 extern void Gb_quat_interpole_diff ( const Gb_quat* q1, const Gb_quat* q2, double s, Gb_quat* qq, Gb_quat* qd, Gb_quat* qdiff );
-
+extern void Gb_q6_set(Gb_q6* s, double q1, double q2, double q3, double q4, double q5, double q6);
+extern void Gb_q6_get(const Gb_q6* e, double* q1, double* q2, double* q3, double* q4, double* q5, double* q6);
 #else /* __STDC__ */
 
 extern double Gb_v3_norme (/* const Gb_v3* e, Gb_v3* s */);
@@ -97,6 +98,7 @@ extern void Gb_quat_interpole (/* const Gb_quat* q1, const Gb_quat* q2, double s
 extern int Gb_quat_interpole_dep (/* const Gb_dep* d1, const Gb_dep* d2, double s, Gb_dep* d_o */);
 extern int Gb_quat_interpole_dep2 (/* const Gb_quat* q1, const Gb_quat* q2, double s, Gb_quat* qo */);
 extern void Gb_quat_interpole_diff (/* const Gb_quat* q1, const Gb_quat* q2, double s, Gb_quat* qq, Gb_quat* qd, Gb_quat* qdiff */);
-
+extern void Gb_q6_set(/*Gb_q6* s, double q1, double q2, double q3, double q4, double q5, double q6*/);
+extern void Gb_q6_get(/*const Gb_q6* e, double* q1, double* q2, double* q3, double* q4, double* q5, double* q6*/);
 #endif /* __STDC__ */
 #endif /* __CEXTRACT__ */
