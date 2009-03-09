@@ -32,7 +32,7 @@ char* Gb_statusMGI_s(Gb_statusMGI u)
 
 double Gb_atan2_offset(double y, double x, double offset, double oldQ)
 {
-  double a = atan2(y, x) + offset;
+  double a = Gb_atan2(y, x) + offset;
   if ( (a - oldQ) > M_PI) {
     a -= 2*M_PI;
   } else {
