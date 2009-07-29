@@ -41,7 +41,7 @@ CPPFLAGS+= -I.. @TCL_CPPFLAGS@
 vpath %.c ${top_srcdir}/src
 
 # les entetes
-HEADERS_= Proto_gb.h gb.h Proto_gbModeles.h gbStruct.h gbGENOM.h
+HEADERS_= Proto_gb.h gb.h Proto_gbModeles.h gbStruct.h gbGENOM.h gbManip.h
 HEADERS= $(HEADERS_:%=${abs_srcdir}/src/%)
 
 # les sources
