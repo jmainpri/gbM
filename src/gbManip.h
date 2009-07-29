@@ -28,7 +28,7 @@ typedef struct Gb_point2D {
 } Gb_point2D;
 
 typedef struct Gb_point3D {
-  double x, y;
+  double x, y, z;
 } Gb_point3D;
 
 typedef struct Gb_euler {
