@@ -7,6 +7,8 @@ dnl
 AC_INIT(gbM,0.2)
 AC_PREREQ(2.59)
 
+m4_include(swigAc.m4)
+
 AC_CANONICAL_HOST
 
 AC_PROG_CC
