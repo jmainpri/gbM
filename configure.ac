@@ -4,7 +4,7 @@ dnl Copyright (c) 2001-2007 CNRS/LAAS
 dnl
 dnl GPL, since some parts were copied from other configure.in
 dnl 
-AC_INIT(gbM,0.1)
+AC_INIT(gbM,0.2)
 AC_PREREQ(2.59)
 
 AC_CANONICAL_HOST
