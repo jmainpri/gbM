@@ -113,19 +113,19 @@ proc Gb_th_set { th args } {
 # corriger : tester type de 1    puts "Gb_th_set n= $n"
     if { $n == 6 } {
 	set v [new_Gb_v3]
-	eval Gb_v3_set [lrange $args 3 end]
-	eval Gb_dep_set dep $args [Gb_v3_module v]
-	Gb_dep_th dep $th
+	eval Gb_v3_set $v [lrange $args 3 end]
+	eval Gb_dep_set $dep $args [Gb_v3_module $v]
+	Gb_dep_th $dep $th
     } elseif { $n == 7 } {
-	eval Gb_dep_set dep $args
-	Gb_dep_th dep $th
+	eval Gb_dep_set $dep $args
+	Gb_dep_th $dep $th
     } elseif { $n == 12 } {
 	eval Gb_v3_set [$th cget -vx] [lrange $args 0 2]
 	eval Gb_v3_set [$th cget -vy] [lrange $args 3 5]
 	eval Gb_v3_set [$th cget -vz] [lrange $args 6 8]
 	eval Gb_v3_set [$th cget -vp] [lrange $args 9 11]
     } else { 
-	error "Pb Gb_dep_th 6, 7 ou 12 valeurs"
+	error "Pb Gb_th_set 6 parameters (vector+axis), 7 (vector+axis+angle) or 12 (vx vy vz vp)"
     }
     return $th
 }
