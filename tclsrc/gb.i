@@ -212,5 +212,11 @@ void Gb_dep_get(Gb_dep* dep, double* x, double* y, double* z,
 %typemap(in, numinputs=0) double* ;
 %typemap(argout) double* ;
 
+void Gb_th_read_euler(Gb_th* th, double Tx, double Ty, double Tz,
+		      double Rx, double Ry, double Rz);
+
+void Gb_th_print_euler(Gb_th* th, Gb_v6* v6);
+
+
 %include "gbModeles.i"
 
