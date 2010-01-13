@@ -1,10 +1,10 @@
 dnl autoconf script for gbM
 dnl
-dnl Copyright (c) 2001-2007 CNRS/LAAS
+dnl Copyright (c) 2001-2007,2010 CNRS/LAAS
 dnl
 dnl GPL, since some parts were copied from other configure.in
 dnl 
-AC_INIT(gbM,0.2)
+AC_INIT(gbM,0.3)
 AC_PREREQ(2.59)
 
 m4_include(swigAc.m4)
