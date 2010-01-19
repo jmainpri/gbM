@@ -37,7 +37,10 @@ DISTNAME= @PACKAGE@-@VERSION@
 
 INSTALL=	@INSTALL@
 
-SUBDIRS= src tclsrc tcl
+SUBDIRS= src
+ifeq (@GB_TCL@, yes)
+SUBDIRS+= tclsrc tcl
+endif
 
 MAKE_SUBDIRS= @for d in $(SUBDIRS); do $(MAKE) -C $$d $@ || exit 2; done
 

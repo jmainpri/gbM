@@ -53,6 +53,12 @@ MKINSTALLDIRS=	$(SHELL) $(abs_srcdir)/mkinstalldirs
 #CPPFLAGS= 	-I$(GDHE_CLIENT_SRC) -I$(GDHE_TOGL_SRC)
 CFLAGS=		@TCL_EXTRA_CFLAGS@
 
+# Custom parameters for building the module
+
+ifeq (@GB_TCL@,yes)
+CFLAGS+= -DGB_TCL
+endif
+
 
 LIBTOOL=	@LIBTOOL@
 LTCC=		$(LIBTOOL) --mode=compile $(CC)
