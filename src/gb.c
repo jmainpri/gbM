@@ -251,18 +251,34 @@ void Gb_dep_quat(const Gb_dep* dep, Gb_quat* q)
 void Gb_quat_dep(const Gb_quat* q, Gb_dep* dep)
 {
   double sinq;
+  double epsilon= 10e-6;
   dep->x = q->x;
   dep->y = q->y;
   dep->z = q->z;
+  double w;
   /* problem if w is 1.0000000000000002 : if (w > 1) dep->a = 0; ... */
+  /* if  w is 1.0000000000000002, we set w to 1 only if (abs(1 -w) < epsilon) */ 
   if (q->w >  1.) {
     dep->a = 0;
+    if(abs(1. - q->w) < epsilon) {
+      w = 1.;
+    } else {
+      w = q->w;
+    }
   } else if (q->w < -1.) {
     dep->a = M_PI;
+    if(abs(-1. - q->w) < epsilon) {
+      w = -1.;
+    } else {
+      w = q->w;
+    }
   } else {
     dep->a = acos(q->w) * 2.;
+    w = q->w;
   }
-  sinq = sqrt(1. - q->w * q->w);
+  
+  //sinq = sqrt(1. - q->w * q->w);
+  sinq = sqrt(1. - w * w);
   if (sinq == 0) {
     dep->rx = 0;
     dep->ry = 0;
