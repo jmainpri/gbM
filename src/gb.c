@@ -8,12 +8,17 @@
 
 #include "gb.h"
 
-#ifdef VXWORKS
+#ifndef M_PI
 #define	M_PI		3.14159265358979323846
-#define	M_PI_2		1.57079632679489661923
-#define	M_PI_4		0.78539816339744830962
-#include <stdlib.h>
 #endif
+#ifndef M_PI_2
+#define	M_PI_2		1.57079632679489661923
+#endif
+#ifndef M_PI_4
+#define	M_PI_4		0.78539816339744830962
+#endif
+#include <stdlib.h>
+
 
 #include "SProto_gb.h"
 
@@ -93,12 +98,36 @@ void Gb_v3_product_r(const Gb_v3* u, double r, Gb_v3* output)
   output->z = u->z * r;
 }
 
- void Gb_v3_div_r(const Gb_v3* u, double r, Gb_v3* output)
+void Gb_v3_div_r(const Gb_v3* u, double r, Gb_v3* output)
 {
   output->x = u->x / r;
   output->y = u->y / r;
   output->z = u->z / r;
 }// Added by X. Broquere
+
+void Gb_v3_dist(const Gb_v3* u, const Gb_v3* v, double* dist)
+{
+	Gb_v3 w;
+	Gb_v3_moins(u, v, &w);
+	*dist = Gb_v3_module(&w);
+	return;
+}
+
+double Gb_v3_dist_droite(const Gb_v3* u, const Gb_v3* v, const Gb_v3* a)
+{
+	Gb_v3 uv, au, w;
+	double m1, m2;
+	Gb_v3_moins(v, u, &uv);
+	Gb_v3_moins(u, a, &au);
+	Gb_v3_cross_product(&uv, &au, &w);
+	m1 = Gb_v3_module(&w);
+	m2 = Gb_v3_module(&uv);
+	if (m2 > 0) {
+
+	return m1/m2;
+	}
+	return 0;
+}
 
 void Gb_v3_set( Gb_v3* u, double x, double y, double z)
 {
@@ -107,6 +136,44 @@ void Gb_v3_set( Gb_v3* u, double x, double y, double z)
   u->z = z;
   return;
 }// Added by X. Broquere; already exists in tcl
+
+void Gb_v3_copy_into(const Gb_v3* e, Gb_v3* s)
+{
+	s->x = e->x;
+	s->y = e->y;
+	s->z = e->z;
+	return;
+}
+
+double Gb_v3_angle(const Gb_v3* u, const Gb_v3* v)
+{
+	double ps = 0.0, pv_m = 0.0, u_m = 0.0, v_m = 0.0, c = 0.0, s = 0.0;
+	Gb_v3 pv;
+	double EPS6 = 0.000001;
+
+	u_m = Gb_v3_module(u);
+	v_m = Gb_v3_module(v);
+	ps = Gb_v3_prs(u, v);
+	Gb_v3_cross_product(u, v, &pv);
+
+	pv_m = Gb_v3_module(&pv);
+	c = ps / (u_m * v_m);
+	s = pv_m / (u_m * v_m);
+
+	if(fabs(pv_m) < EPS6 ) {
+		if(ps < 0.0) {
+			return M_PI;
+		}	else {
+			return 0.0;
+		}
+	}
+
+	if(s > 0.0) {
+		return acos(c);
+	} else {
+		return -acos(c);
+	}
+}
 
 void Gb_v3_print(const Gb_v3* u)
 {
@@ -136,6 +203,13 @@ void Gb_dep_get(Gb_dep* dep, double* x, double* y, double* z,
   *ry = dep->ry;
   *rz = dep->rz;
   *a  = dep->a ;
+}
+
+void Gb_dep_print(const Gb_dep* dep)
+{
+	printf("x = %f ; y = %f ; z = %f ; rx = %f ; ry = %f ; rz = %f ; a = %f\n",dep->x, dep->y,
+				 dep->z, dep->rx, dep->ry, dep->rz, dep->a);
+	return;
 }
 
 
@@ -648,6 +722,88 @@ void Gb_quat_interpole(const Gb_quat* q1, const Gb_quat* q2, double s,
   Gb_quat_x_quat(q1, &q1q2, qo);
 }
 
+void Gb_quat_interpole_depRel(const Gb_quat* q1, const Gb_quat* q2, double s, Gb_quat* qo, Gb_dep *relDep)
+{
+	Gb_quat q1_inverse;
+	Gb_quat q1q2;
+	Gb_quat q1q2neg;
+	Gb_dep d_12;
+	Gb_dep d_12neg;
+
+	Gb_quat_inverse(q1, &q1_inverse);
+	Gb_quat_x_quat(&q1_inverse, q2, &q1q2);
+	q1_inverse.vz = -q1_inverse.vz;
+	q1_inverse.vy = -q1_inverse.vy;
+	q1_inverse.vx = -q1_inverse.vx;
+	q1_inverse.w  = -q1_inverse.w;
+	Gb_quat_x_quat(&q1_inverse, q2, &q1q2neg);
+	Gb_quat_dep(&q1q2, &d_12);
+	Gb_quat_dep(&q1q2neg, &d_12neg);
+	if (fabs(d_12.a) < fabs(d_12neg.a)) {
+		d_12.x *= s;
+		d_12.y *= s;
+		d_12.z *= s;
+		d_12.a *= s;
+		Gb_dep_quat(&d_12, &q1q2);
+		relDep->x  = d_12.x;
+		relDep->y  = d_12.y;
+		relDep->z  = d_12.z;
+		relDep->rx = d_12.rx;
+		relDep->ry = d_12.ry;
+		relDep->rz = d_12.rz;
+		relDep->a  = d_12.a;
+	} else {
+		d_12neg.x *= s;
+		d_12neg.y *= s;
+		d_12neg.z *= s;
+		d_12neg.a *= s;
+		Gb_dep_quat(&d_12neg, &q1q2);
+		relDep->x  = d_12neg.x;
+		relDep->y  = d_12neg.y;
+		relDep->z  = d_12neg.z;
+		relDep->rx = d_12neg.rx;
+		relDep->ry = d_12neg.ry;
+		relDep->rz = d_12neg.rz;
+		relDep->a  = d_12neg.a;
+	}
+	Gb_quat_x_quat(q1, &q1q2, qo);
+}
+
+void Gb_quat_compute_relativeDep_to_interpole(const Gb_quat* q1, const Gb_quat* q2, Gb_dep* relDep) {
+	Gb_quat q1_inverse;
+	Gb_quat q1q2;
+	Gb_quat q1q2neg;
+	Gb_dep d_12;
+	Gb_dep d_12neg;
+
+	Gb_quat_inverse(q1, &q1_inverse);
+	Gb_quat_x_quat(&q1_inverse, q2, &q1q2);
+	q1_inverse.vz = -q1_inverse.vz;
+	q1_inverse.vy = -q1_inverse.vy;
+	q1_inverse.vx = -q1_inverse.vx;
+	q1_inverse.w  = -q1_inverse.w;
+	Gb_quat_x_quat(&q1_inverse, q2, &q1q2neg);
+	Gb_quat_dep(&q1q2, &d_12);
+	Gb_quat_dep(&q1q2neg, &d_12neg);
+	if (fabs(d_12.a) < fabs(d_12neg.a)) {
+		relDep->x  = d_12.x;
+		relDep->y  = d_12.y;
+		relDep->z  = d_12.z;
+		relDep->rx = d_12.rx;
+		relDep->ry = d_12.ry;
+		relDep->rz = d_12.rz;
+		relDep->a  = d_12.a;
+	} else {
+		relDep->x  = d_12neg.x;
+		relDep->y  = d_12neg.y;
+		relDep->z  = d_12neg.z;
+		relDep->rx = d_12neg.rx;
+		relDep->ry = d_12neg.ry;
+		relDep->rz = d_12neg.rz;
+		relDep->a  = d_12neg.a;
+	}
+}
+
 int Gb_quat_interpole_dep(const Gb_dep* d1, const Gb_dep* d2, double s,
 			   Gb_dep* d_o)
 {
@@ -694,7 +850,7 @@ int Gb_quat_interpole_depV2(const Gb_dep* d1, const Gb_dep* d2, double s,
 //  Gb_depth(d1, th01);
 //  Gb_th_inverse(th01, th10);
 
-
+	return 0;
 }
 
 int Gb_quat_interpole_dep2(const Gb_quat* q1, const Gb_quat* q2, double s,
@@ -747,6 +903,13 @@ void Gb_q6_get(const Gb_q6* e, double* q1, double* q2, double* q3, double* q4,
 	*q6 = e->q6;
 	return;
 }
+
+void Gb_q6_print(const Gb_q6* e)
+{
+	printf("q1 %f q2 %f q3 %f q4 %f q5 %f q6 %f\n",e->q1, e->q2, e->q3, e->q4, e->q5, e->q6);
+	return;
+}
+
 
 /*
  * Horrors to interface with the stupidity of eulers angles

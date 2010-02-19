@@ -17,10 +17,15 @@ extern void Gb_v3_plus ( const Gb_v3* u, const Gb_v3* v, Gb_v3* output );
 extern void Gb_v3_moins ( const Gb_v3* u, const Gb_v3* v, Gb_v3* output );
 extern void Gb_v3_product_r ( const Gb_v3* u, double r, Gb_v3* output );
 extern void Gb_v3_div_r(const Gb_v3* u, double r, Gb_v3* output);
+extern void Gb_v3_dist(const Gb_v3* u, const Gb_v3* v, double* dist);
+extern double Gb_v3_dist_droite(const Gb_v3* u, const Gb_v3* v, const Gb_v3* a);
 extern void Gb_v3_set( Gb_v3* u, double x, double y, double z);
+extern void Gb_v3_copy_into(const Gb_v3* e, Gb_v3* s);
+extern double Gb_v3_angle(const Gb_v3* u, const Gb_v3* v);
 extern void Gb_v3_print(const Gb_v3* u);
 extern void Gb_dep_set ( Gb_dep* dep, double x, double y, double z, double rx, double ry, double rz, double a );
 extern void Gb_dep_get ( Gb_dep* dep, double* x, double* y, double* z, double* rx, double* ry, double* rz, double* a );
+extern void Gb_dep_print(const Gb_dep* dep);
 extern void Gb_m33_ppv ( const Gb_v3* ve, Gb_m33* ms );
 extern void Gb_dep_quat ( const Gb_dep* dep, Gb_quat* q );
 extern void Gb_quat_dep ( const Gb_quat* q, Gb_dep* dep );
@@ -56,6 +61,10 @@ extern void Gb_q6_set(Gb_q6* s, double q1, double q2, double q3, double q4, doub
 extern void Gb_q6_get(const Gb_q6* e, double* q1, double* q2, double* q3, double* q4, double* q5, double* q6);
 void Gb_th_read_euler(Gb_th* th, double Tx, double Ty, double Tz, double Rx, double Ry, double Rz);
 void Gb_th_print_euler(Gb_th* th, Gb_v6* s);
+extern void Gb_q6_print(const Gb_q6* e);
+extern void Gb_quat_compute_relativeDep_to_interpole(const Gb_quat* q1, const Gb_quat* q2, Gb_dep* relDep);
+extern void Gb_quat_interpole_depRel(const Gb_quat* q1, const Gb_quat* q2, double s, Gb_quat* qo, Gb_dep *relDep);
+
 #else /* __STDC__ */
 
 extern double Gb_v3_norme (/* const Gb_v3* e, Gb_v3* s */);
@@ -67,8 +76,11 @@ extern double Gb_v3_module (/* const Gb_v3* u */);
 extern void Gb_v3_plus (/* const Gb_v3* u, const Gb_v3* v, Gb_v3* output */);
 extern void Gb_v3_moins (/* const Gb_v3* u, const Gb_v3* v, Gb_v3* output */);
 extern void Gb_v3_product_r (/* const Gb_v3* u, double r, Gb_v3* output */);
+extern void Gb_v3_dist(/*const Gb_v3* u, const Gb_v3* v, double* dist*/);
+extern void Gb_v3_print(/*const Gb_v3* u*/);
 extern void Gb_dep_set (/* Gb_dep* dep, double x, double y, double z, double rx, double ry, double rz, double a */);
 extern void Gb_dep_get (/* Gb_dep* dep, double* x, double* y, double* z, double* rx, double* ry, double* rz, double* a */);
+extern void Gb_dep_print(/*const Gb_dep* dep*/);
 extern void Gb_m33_ppv (/* const Gb_v3* ve, Gb_m33* ms */);
 extern void Gb_dep_quat (/* const Gb_dep* dep, Gb_quat* q */);
 extern void Gb_quat_dep (/* const Gb_quat* q, Gb_dep* dep */);
@@ -104,5 +116,8 @@ extern void Gb_q6_set(/*Gb_q6* s, double q1, double q2, double q3, double q4, do
 extern void Gb_q6_get(/*const Gb_q6* e, double* q1, double* q2, double* q3, double* q4, double* q5, double* q6*/);
 void Gb_th_read_euler(/*Gb_th* th, double Tx, double Ty, double Tz, double Rx, double Ry, double Rz*/);
 void Gb_th_print_euler(/*Gb_th* th, Gb_v6* s*/);
+extern void Gb_q6_print(/*const Gb_q6* e*/);
+extern void Gb_quat_compute_relativeDep_to_interpole(/*const Gb_quat* q1, const Gb_quat* q2, Gb_dep* relDep*/);
+extern void Gb_quat_interpole_depRel();
 #endif /* __STDC__ */
 #endif /* __CEXTRACT__ */

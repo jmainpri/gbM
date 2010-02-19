@@ -35,7 +35,7 @@ SRCDIR=		@srcdir@
 INSTALL=	@INSTALL@
 INSTALL_DATA=	@INSTALL_DATA@
 
-FILES=	gbModeles.tcl gb.tcl testGb.tcl
+FILES=	gbModeles.tcl gb.tcl testGb.tcl pkgIndex.tcl
 
 all:	
 	@echo "Nothing to be done here"
@@ -46,7 +46,6 @@ install:
 		echo "installing $$f in $(TCL_FILES_DIR)"; \
 		$(INSTALL_DATA) $(SRCDIR)/$$f $(TCL_FILES_DIR) ; \
 	done
-	tclsh mkIndex $(TCL_FILES_DIR) $(LIBDIR)
 
 depend:
 	@echo "No dependencies here"

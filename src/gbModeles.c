@@ -8,11 +8,17 @@
 #include <math.h>
 #include <stdio.h>
 
-#ifdef VXWORKS 
+
+#ifndef M_PI
 #define	M_PI		3.14159265358979323846
+#endif
+#ifndef M_PI_2
 #define	M_PI_2		1.57079632679489661923
+#endif
+#ifndef M_PI_4
 #define	M_PI_4		0.78539816339744830962
 #endif
+
 
 #include "gb.h"
 #include "SProto_gbModeles.h"
@@ -20,11 +26,11 @@
 char* Gb_statusMGI_s(Gb_statusMGI u)
 {
   switch (u) {
-  case MGI_OK : return "MGI_OK";
-  case MGI_ERROR : return "MGI_ERROR";
-  case MGI_APPROXIMATE : return "MGI_APPROXIMATE";
-  case   MGI_SINGULAR : return "MGI_SINGULAR";
-  default : return "ERROR_SWITCH";
+  case MGI_OK : return (char*)"MGI_OK";
+  case MGI_ERROR : return (char*)"MGI_ERROR";
+  case MGI_APPROXIMATE : return (char*)"MGI_APPROXIMATE";
+  case   MGI_SINGULAR : return (char*)"MGI_SINGULAR";
+  default : return (char*)"ERROR_SWITCH";
   }
 }
 
@@ -345,17 +351,18 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   sq->q2 += bras->of2;
   sq->q3 += bras->of3;
   if ( (sq->q2 - old_q->q2) > M_PI) {
-    printf("1-- q2= %g  q2old= %g\n", sq->q2, old_q->q2);
+    //printf("1-- q2= %g  q2old= %g ", sq->q2, old_q->q2);
     sq->q2 -= 2*M_PI;
   }
   if ( (sq->q2 - old_q->q2) <= -M_PI) {
-    printf("2-- q2= %g  q2old= %g\n", sq->q2, old_q->q2);
+    //printf("2-- q2= %g  q2old= %g ", sq->q2, old_q->q2);
     sq->q2 += 2*M_PI;
   }
   if ( (sq->q3 - old_q->q3) > M_PI) sq->q3 -= 2*M_PI;
   if ( (sq->q3 - old_q->q3) <= -M_PI) sq->q3 += 2*M_PI;
-  if (fabs(sq->q2) > 2*M_PI) 
-    printf("q2= %g  q2old= %g\n", sq->q2, old_q->q2);
+  if (fabs(sq->q2) > 2*M_PI) {
+   // printf("q2= %g  q2old= %g\n", sq->q2, old_q->q2);
+	}
   d->d7 = d->c23 * d->d10 + d->s23 * eth->vz.z;
   d->c5 = d->s23 * d->d10 - d->c23 * eth->vz.z;
   d->d5 = d->c23 * d->d9  + d->s23 * eth->vx.z;

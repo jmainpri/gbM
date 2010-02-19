@@ -26,5 +26,5 @@ typedef struct Gb_force {
 
 #define GB_GENOM
 #include "gbStruct.h"
-#include "gbManip.h"
+
 #endif
