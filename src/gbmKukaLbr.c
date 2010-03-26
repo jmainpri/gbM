@@ -215,7 +215,7 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
   C3 = cos(q->q3);
   S3 = sin(q->q3);
 
-  C4 = d24*d24 + d29*d29 + d30*d30 - r5*r5 - r3*r3 / 2. / r5 / r3;
+  C4 = ( d24*d24 + d29*d29 + d30*d30 - r5*r5 - r3*r3 ) / 2. / r5 / r3;
   if ( C4 < -1.-epsilon ) { 
     return -1;
   } else if ( C4 < -1 )  { 
