@@ -224,6 +224,7 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
     q->q4 = M_PI;
   } else if ( C4 < 1 )  {
     S4 = sqrt(1 - C4*C4);
+    if (Qp->q4 < 0.) S4 = -S4;
     q->q4 = atan2(S4, C4);
     //if ?? autre solution
   } else if ( C4 < 1 + epsilon ) {
@@ -234,18 +235,36 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
     return -1;
   }
   d11 = S4 * r5;
-  d12 = C4 * r5;
-  if (d29*d29 + d30*d30 -d18*d18 < 0) {
+  if ( (d29*d29 + d30*d30 -d18*d18) < -epsilon) {
     return -2;
+  } else if ( (d29*d29 + d30*d30 -d18*d18) < 0) {
+    d23 = 0;
+    // approximated ??
+  } else {
+    d23 = sqrt(d29*d29 + d30*d30 -d18*d18);
+   pas top     +d18 puis -d18
   }
-  d23 = sqrt(d29*d29 + d30*d30 -d18*d18);
-  // if ?? autre solution
-  C1 = (d23*d29 - d18*d30) / (d23*d23 + d18*d18);
-  S1 = (d18*d29 + d23*d30) / (d23*d23 + d18*d18);
-  q->q1 = atan2(S1, C1);
-  C2 = (d17*d23 + (d12+r3)*d24) / (d17*d17+(d12+r3)*(d12+r3));
-  S2 = ((d12+r3)*d23 + d17*d24) / ((d12+r3)*(d12+r3)+d17*d17);
-  q->q2 = atan2(S2, C2);
+  //if ?? autre solution
+  if ((d23*d23 + d18*d18) == 0) {
+    // return value  singular configuration
+    q->q1 = Qp->q1;
+    C1 = cos(Qp->q1);
+    S1 = sin(Qp->q1);
+  } else {
+    C1 = (d23*d29 - d18*d30) / (d23*d23 + d18*d18);
+    S1 = (d18*d29 + d23*d30) / (d23*d23 + d18*d18);
+    q->q1 = atan2(S1, C1);
+  }
+  if (( d17*d17+(d12+r3)*(d12+r3) ) == 0) {
+    // return value  singular configuration
+    q->q2 = Qp->q2;
+    C2 = cos(Qp->q2);
+    S2 = sin(Qp->q2);
+  } else {
+    C2 = (d17*d23 + (d12+r3)*d24) / (d17*d17+(d12+r3)*(d12+r3));
+    S2 = ((d12+r3)*d23 + d17*d24) / (d17*d17+(d12+r3)*(d12+r3));
+    q->q2 = atan2(S2, C2);
+  }
   d15 = C2*d21+S2*d22;
   d10 =-S2*d21+C2*d22;
   d13 = C2*d19 + S2*d20;
@@ -261,9 +280,16 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
   S6= sqrt(d5*d5 + d6*d6);
   // if ?? autre solution
   q->q6 = atan2(S6, C6);
-  C5 = -d5/S6;
-  S5 = -d6/S6;
-  q->q5 = atan2(S5, C5);
+  if (S6 == 0) {
+    // return value  singular configuration
+    q->q6 = Qp->q6;
+    C6 = cos(Qp->q6);
+    S6 = sin(Qp->q6);
+  } else {
+    C5 = -d5/S6;
+    S5 = -d6/S6;
+    q->q5 = atan2(S5, C5);
+  }
   d1 = C5*d3 + S5*d4;
   S7 = -S5*d3 + C5*d4;
   C7 = C6*d1 + S6*d2;
@@ -290,21 +316,21 @@ int main(int argc, char** argv)
   q0.q6 = 0.0;
   q0.q7 = 0.0;
 
-  q.q1 = 0;
-  q.q2 = 0;
-  q.q3 = 0;
-  q.q4 = 0;
-  q.q5 = 0;
-  q.q6 = 0;
-  q.q7 = 0;
-//  q.q1 = M_PI / 7.;
-//  q.q2 =-M_PI / 5.;
-//  q.q3 = M_PI / 7.;
-//  q.q4 =-M_PI / 5.;
-//  q.q5 = M_PI / 7.;
-//  q.q6 =-M_PI / 8.;
-//  q.q7 = M_PI / 7.;
-//
+//  q.q1 = 0;
+//  q.q2 = 0;
+//  q.q3 = 0;
+//  q.q4 = 0;
+//  q.q5 = 0;
+//  q.q6 = 0;
+//  q.q7 = 0;
+  q.q1 = M_PI / 7.;
+  q.q2 =-M_PI / 5.;
+  q.q3 = M_PI / 7.;
+  q.q4 =-M_PI / 5.;
+  q.q5 = M_PI / 7.;
+  q.q6 =-M_PI / 8.;
+  q.q7 = M_PI / 7.;
+
   printf("q= %g %g %g  %g %g %g  %g\n", q.q1, q.q2, q.q3, q.q4, q.q5, q.q6, q.q7);
 
   kukaLBR_mgd(&q, &q0, r3, r5, &th07);
