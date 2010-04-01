@@ -224,7 +224,7 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
     q->q4 = M_PI;
   } else if ( C4 < 1 )  {
     S4 = sqrt(1 - C4*C4);
-    if (Qp->q4 < 0.) S4 = -S4;
+    if (sin(Qp->q4) < 0.) S4 = -S4;
     q->q4 = atan2(S4, C4);
     //if ?? autre solution
   } else if ( C4 < 1 + epsilon ) {
@@ -235,6 +235,9 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
     return -1;
   }
   d11 = S4 * r5;
+  d12 = C4 * r5;
+  d17 = C3 * d11;
+  d18 = -S3 * d11;
   if ( (d29*d29 + d30*d30 -d18*d18) < -epsilon) {
     return -2;
   } else if ( (d29*d29 + d30*d30 -d18*d18) < 0) {
@@ -242,7 +245,6 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
     // approximated ??
   } else {
     d23 = sqrt(d29*d29 + d30*d30 -d18*d18);
-   pas top     +d18 puis -d18
   }
   //if ?? autre solution
   if ((d23*d23 + d18*d18) == 0) {
@@ -262,7 +264,7 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
     S2 = sin(Qp->q2);
   } else {
     C2 = (d17*d23 + (d12+r3)*d24) / (d17*d17+(d12+r3)*(d12+r3));
-    S2 = ((d12+r3)*d23 + d17*d24) / (d17*d17+(d12+r3)*(d12+r3));
+    S2 = (-(d12+r3)*d23 + d17*d24) / (d17*d17+(d12+r3)*(d12+r3));
     q->q2 = atan2(S2, C2);
   }
   d15 = C2*d21+S2*d22;
