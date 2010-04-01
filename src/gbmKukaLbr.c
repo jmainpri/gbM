@@ -83,6 +83,8 @@ typedef struct Gb_th {
 
 #include "math.h"
 
+#include <stdio.h>
+
 void kukaLBR_mgd(Gb_q7* Q, Gb_q7* Q0, double r3, double r5, Gb_th* th07)
 {
   double C1 = cos (Q->q1 - Q0->q1);
@@ -131,6 +133,12 @@ void kukaLBR_mgd(Gb_q7* Q, Gb_q7* Q0, double r3, double r5, Gb_th* th07)
   double d29 = C1 * d23 + S1 * d18;
   double d30 = S1 * d23 - C1 * d18;
   
+//  printf("d1-10= %g %g %g %g %g  %g %g %g %g %g\n", 
+//	 d1, d2, d3, d4, d5, d6, d7, d8, d9, d10);
+//  printf("d11-20= %g %g %g %g %g  %g %g %g %g %g\n", 
+//	 d11, d12, d13, d14, d15, d16, d17, d18, d19, d20);
+//  printf("d21-30= %g %g %g %g %g  %g %g %g %g %g\n", 
+//	 d21, d22, d23, d24, d25, d26, d27, d28, d29, d30);
   th07->vx.x = d25;
   th07->vx.y = d26;
   th07->vx.z = d20;
@@ -257,6 +265,10 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
     S1 = (d18*d29 + d23*d30) / (d23*d23 + d18*d18);
     q->q1 = atan2(S1, C1);
   }
+  d21 = C1 * d27 + S1 * d28;
+  d16 = S1 * d27 - C1 * d28;
+  d19 = C1 * d25 + S1 * d26;
+  d14 = S1 * d25 - C1 * d26;
   if (( d17*d17+(d12+r3)*(d12+r3) ) == 0) {
     // return value  singular configuration
     q->q2 = Qp->q2;
@@ -272,7 +284,7 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
   d13 = C2*d19 + S2*d20;
   d8 = -S2*d19 + C2*d20;
   d9 = C3*d15 - S3*d16;
-  d6 = -S3*d15 - C3*d6;
+  d6 = -S3*d15 - C3*d16;
   d7 = C3*d13 - S3*d14;
   d4 = -S3*d13 - C3*d14;
   d5 = C4*d9 - S4*d10;
@@ -280,7 +292,7 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
   d3 = C4*d7 - S4*d8;
   d2 = S4*d7 + C4*d8;
   S6= sqrt(d5*d5 + d6*d6);
-  // if ?? autre solution
+  if (sin(Qp->q6) < 0) S6 = -S6;
   q->q6 = atan2(S6, C6);
   if (S6 == 0) {
     // return value  singular configuration
@@ -300,7 +312,6 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
 
 }
 
-#include <stdio.h>
 
 int main(int argc, char** argv) 
 {
@@ -328,11 +339,18 @@ int main(int argc, char** argv)
   q.q1 = M_PI / 7.;
   q.q2 =-M_PI / 5.;
   q.q3 = M_PI / 7.;
-  q.q4 =-M_PI / 5.;
+  q.q4 =-M_PI / 15.;
   q.q5 = M_PI / 7.;
   q.q6 =-M_PI / 8.;
   q.q7 = M_PI / 7.;
-
+//  q.q1 = M_PI / 7.;
+//  q.q2 =-M_PI / 5.;
+//  q.q3 = M_PI / 7.;
+//  q.q4 =-M_PI / 5.;
+//  q.q5 = M_PI / 7.;
+//  q.q6 =-M_PI / 8.;
+//  q.q7 = M_PI / 7.;
+//
   printf("q= %g %g %g  %g %g %g  %g\n", q.q1, q.q2, q.q3, q.q4, q.q5, q.q6, q.q7);
 
   kukaLBR_mgd(&q, &q0, r3, r5, &th07);
