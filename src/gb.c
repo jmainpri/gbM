@@ -251,34 +251,18 @@ void Gb_dep_quat(const Gb_dep* dep, Gb_quat* q)
 void Gb_quat_dep(const Gb_quat* q, Gb_dep* dep)
 {
   double sinq;
-  double epsilon= 10e-6;
   dep->x = q->x;
   dep->y = q->y;
   dep->z = q->z;
-  double w;
   /* problem if w is 1.0000000000000002 : if (w > 1) dep->a = 0; ... */
-  /* if  w is 1.0000000000000002, we set w to 1 only if (abs(1 -w) < epsilon) */ 
   if (q->w >  1.) {
     dep->a = 0;
-    if(abs(1. - q->w) < epsilon) {
-      w = 1.;
-    } else {
-      w = q->w;
-    }
   } else if (q->w < -1.) {
     dep->a = M_PI;
-    if(abs(-1. - q->w) < epsilon) {
-      w = -1.;
-    } else {
-      w = q->w;
-    }
   } else {
     dep->a = acos(q->w) * 2.;
-    w = q->w;
   }
-  
-  //sinq = sqrt(1. - q->w * q->w);
-  sinq = sqrt(1. - w * w);
+  sinq = sqrt(1. - q->w * q->w);
   if (sinq == 0) {
     dep->rx = 0;
     dep->ry = 0;
@@ -924,65 +908,4 @@ void Gb_q6_print(const Gb_q6* e)
 {
 	printf("q1 %f q2 %f q3 %f q4 %f q5 %f q6 %f\n",e->q1, e->q2, e->q3, e->q4, e->q5, e->q6);
 	return;
-}
-
-
-/*
- * Horrors to interface with the stupidity of eulers angles
- */
-void Gb_th_print_euler(Gb_th* th, Gb_v6* s)
-{
- double cy;
- double epsilon= 10e-6;
-
- s->ry = asin(th->vz.x);
- cy = cos(s->ry);
- if( (-epsilon < cy)  &&  (cy < epsilon) )
- {
-   s->rx = 0.0;
-   s->rz= atan2( th->vx.y, th->vy.y );
- }
- else
- {
-   s->rx = -atan2( th->vz.y, th->vz.z );
-   s->rz = -atan2( th->vy.x, th->vx.x );
-
-   if( (s->ry)<0 && (s->ry)<-M_PI_2 )
-     (s->ry)= -M_PI - (s->ry);
-
-   if( (s->ry)>0 && (s->ry)>M_PI_2 )
-     (s->ry)= M_PI - (s->ry);
- }
-
- s->x = th->vp.x;
- s->y = th->vp.y;
- s->z = th->vp.z;  
-}
-
-void Gb_th_read_euler(Gb_th* th, double Tx, double Ty, double Tz,
-		      double Rx, double Ry, double Rz)
-{
-  double Sx = sin(Rx);
-  double Cx = cos(Rx);
-  double Sy = sin(Ry);
-  double Cy = cos(Ry);
-  double Sz = sin(Rz);
-  double Cz = cos(Rz);
-  double SxSy = Sx*Sy;
-  double CxSy = Cx*Sy;
-
-  th->vx.x = Cy*Cz;
-  th->vy.x = - Cy*Sz;
-  th->vz.x = Sy;
-  th->vp.x = Tx;
-  
-  th->vx.y = SxSy*Cz + Cx*Sz;
-  th->vy.y = -SxSy*Sz + Cx*Cz;
-  th->vz.y = -Sx*Cy;
-  th->vp.y = Ty;
-  
-  th->vx.z = -CxSy*Cz + Sx*Sz;
-  th->vy.z = CxSy*Sz + Sx*Cz;
-  th->vz.z = Cx*Cy;
-  th->vp.z = Tz;
 }

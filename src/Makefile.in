@@ -26,7 +26,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 # 
-# $LAAS$
+# $LAAS: Makefile.in,v 1.1 2007/03/07 17:00:40 daniel Exp $
 # Makefile for gdhe
 #
 top_srcdir=	@top_srcdir@
@@ -41,11 +41,11 @@ CPPFLAGS+= -I.. @TCL_CPPFLAGS@
 vpath %.c ${top_srcdir}/src
 
 # les entetes
-HEADERS_= Proto_gb.h gb.h Proto_gbModeles.h gbStruct.h gbGENOM.h gbManip.h
+HEADERS_= Proto_gb.h gb.h Proto_gbModeles.h gbStruct.h gbGENOM.h
 HEADERS= $(HEADERS_:%=${abs_srcdir}/src/%)
 
 # les sources
-SRCS = gb.c gbModeles.c
+SRCS = gb.c gbModeles.c gbmKukaLbr.c
 
 OBJS = $(SRCS:%.c=%.lo)
 

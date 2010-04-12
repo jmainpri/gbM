@@ -62,55 +62,6 @@ T67 = ( C7   -S7   0   0 )
 #include <stdio.h>
 #include "gbStruct.h"
 
-typedef struct Gb_q7 {
-  double q1;
-  double q2;
-  double q3;
-  double q4;
-  double q5;
-  double q6;
-  double q7;
-} Gb_q7;
-
-//   --- Debut a virer
-
-//typedef struct Gb_v3 {
-//  double x;
-//  double y;
-//  double z;
-//} Gb_v3;
-//typedef struct Gb_th {
-//  Gb_v3 vx;
-//  Gb_v3 vy;
-//  Gb_v3 vz;
-//  Gb_v3 vp;
-//} Gb_th;
-/*
- * Gb_v3_cross_product : compute the cros product w of u and v
- * accepte output=u ou v
- */
-void Gb_v3_cross_product(const Gb_v3* u, const Gb_v3* v, Gb_v3* output)
-{
-  double x, y, z; /* Pour output = u ou v */
-  x = u->y * v->z - u->z * v->y;
-  y = u->z * v->x - u->x * v->z;
-  z = u->x * v->y - u->y * v->x;
-  output->x = x;
-  output->y = y;
-  output->z = z;
-}
-char* Gb_statusMGI_s(Gb_statusMGI u)
-{
-  switch (u) {
-  case MGI_OK : return (char*)"MGI_OK";
-  case MGI_ERROR : return (char*)"MGI_ERROR";
-  case MGI_APPROXIMATE : return (char*)"MGI_APPROXIMATE";
-  case   MGI_SINGULAR : return (char*)"MGI_SINGULAR";
-  default : return (char*)"ERROR_SWITCH";
-  }
-}
-// fin à virer
-
 // to eventually put in gb.c
 void Gb_th_print(Gb_th *th, char* s)
 {
@@ -488,7 +439,7 @@ Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   return ret;
 }
 
-
+/*
 int main(int argc, char** argv) 
 {
   Gb_q7 q, qs;
@@ -587,5 +538,5 @@ int main(int argc, char** argv)
 	 qs.q1, qs.q2, qs.q3, qs.q4, qs.q5, qs.q6, qs.q7);
   kukaLBR_mgd(&qs, r3, r5, &thp);   Gb_th_print(&thp, "th07");
   return 0;
-}
+}*/
 

@@ -38,7 +38,7 @@ char* Gb_statusMGI_s(Gb_statusMGI u)
 
 double Gb_atan2_offset(double y, double x, double offset, double oldQ)
 {
-  double a = Gb_atan2(y, x) + offset;
+  double a = atan2(y, x) + offset;
   if ( (a - oldQ) > M_PI) {
     a -= 2*M_PI;
   } else {
@@ -81,7 +81,7 @@ void Gb_dataMGD_print(FILE* output, Gb_dataMGD *d)
 
 /*
  * compute the direct geometric model of a 6R arm robot
- * Inputs : 
+ * Inputs :
  *   bras : constants of the arm
  *   eq : articulation coordinates
  * output :
@@ -145,7 +145,7 @@ void Gb_MGD6rTh(Gb_6rParameters* bras, Gb_q6* eq,
 
 /*
  * compute the configuration e1 e2 e3 for a 6R arm robot
- * Inputs : 
+ * Inputs :
  *   bras : constants of the arm
  *   eq : articulation coordinates
  * output :
@@ -170,18 +170,18 @@ void Gb_MGD6r_gete1e2e3(Gb_6rParameters* bras, Gb_q6* eq,
 }
 
 /*
- * compute the direct geometric model of a 6R arm robot and the 
+ * compute the direct geometric model of a 6R arm robot and the
  *   intermediates matrix
- * Inputs : 
+ * Inputs :
  *   bras : constants of the arm
  *   eq : articulation coordinates
  * output :
  *   d : Gb_dataMGD structure for computation
  *   th01, th02, th03, th04, th05, th06 : cartesian coordinates
- *   
+ *
  */
 void Gb_MGD6r_6Th(Gb_6rParameters* bras, Gb_q6* eq, Gb_dataMGD* d,
-                Gb_th* th01, Gb_th* th02, Gb_th* th03, 
+                Gb_th* th01, Gb_th* th02, Gb_th* th03,
 		Gb_th* th04, Gb_th* th05, Gb_th* th06)
 {
   Gb_MGD6rTh(bras, eq, d, th06);
@@ -263,14 +263,14 @@ void Gb_MGD6r_6Th(Gb_6rParameters* bras, Gb_q6* eq, Gb_dataMGD* d,
  *  Allways return a value in sq. If the value is an exact value the
  *   function return MGI_OK or MGI_SINGULAR if it is a singular
  *   position. If the value is an approximate value the function
- *   return MGI_APPROXIMATE. 
+ *   return MGI_APPROXIMATE.
  *  The solution returned is defined by e1, e2 and e3.
  *  For singular position the function return the solution closer to
  *   the old_q value.
  *
  * input :
  *   bras : constant of the arm
- *   eth : cartesien coordinate 
+ *   eth : cartesien coordinate
  *   e1, e2, e3 : defined the solution returned (problem has 8 solution)
  * output:
  *   d : Gb_dataMGD structure for computation
@@ -279,7 +279,7 @@ void Gb_MGD6r_6Th(Gb_6rParameters* bras, Gb_q6* eq, Gb_dataMGD* d,
  */
 Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
 				int e1, int e2, int e3, Gb_q6* old_q,
-				Gb_dataMGD* d, Gb_q6* sq) 
+				Gb_dataMGD* d, Gb_q6* sq)
 {
   double a2, r4;
   Gb_statusMGI ret = MGI_OK;
@@ -303,10 +303,10 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   d->d9  = d->c1 * eth->vx.x + d->s1 * eth->vx.y;
   d->d6  = d->s1 * eth->vx.x - d->c1 * eth->vx.y;
   d->d12 = d->d11*d->d11 + eth->vp.z*eth->vp.z;
-  d->s3 = (d->d12 - r4*r4 - a2*a2) 
+  d->s3 = (d->d12 - r4*r4 - a2*a2)
     / (2.0 * a2 * r4);
   if ((d->s3 < (-1.0+bras->epsilon)) || (d->s3 > (1.0-bras->epsilon))) {
-    /*    printf("Pb MGI_SINGULAR s3 1-S3 1+S3 // l=  %g  %g  %g // %G\n", 
+    /*    printf("Pb MGI_SINGULAR s3 1-S3 1+S3 // l=  %g  %g  %g // %G\n",
      *	   d->s3, 1-d->s3, 1+d->s3, sqrt(d->d11*d->d11 + eth->p.z*eth->p.z));
      */
     if (d->s3 < -1.-bras->epsilon) {
@@ -353,10 +353,12 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
   if ( (sq->q2 - old_q->q2) > M_PI) {
     //printf("1-- q2= %g  q2old= %g ", sq->q2, old_q->q2);
     sq->q2 -= 2*M_PI;
+		//printf("q2next %g\n",sq->q2);
   }
   if ( (sq->q2 - old_q->q2) <= -M_PI) {
     //printf("2-- q2= %g  q2old= %g ", sq->q2, old_q->q2);
     sq->q2 += 2*M_PI;
+		//printf("q2next %g\n",sq->q2);
   }
   if ( (sq->q3 - old_q->q3) > M_PI) sq->q3 -= 2*M_PI;
   if ( (sq->q3 - old_q->q3) <= -M_PI) sq->q3 += 2*M_PI;
@@ -392,7 +394,7 @@ Gb_statusMGI Gb_MGI6rTh(Gb_6rParameters* bras, Gb_th* eth,
 double Gb_q6Dist(Gb_q6* p, Gb_q6* q)
 {
   double res = 0;
-  
+
   res += (p->q1 - q->q1) * (p->q1 - q->q1);
   res += (p->q2 - q->q2) * (p->q2 - q->q2);
   res += (p->q3 - q->q3) * (p->q3 - q->q3);
@@ -402,12 +404,12 @@ double Gb_q6Dist(Gb_q6* p, Gb_q6* q)
   res = sqrt(res);
   return res;
 }
-  
-//  Gb_MGI6rTh_O choose automatically the solution 
+
+//  Gb_MGI6rTh_O choose automatically the solution
 //  Attention : to rewrite without calling 10 times MGI !
 Gb_statusMGI Gb_MGI6rTh_O(Gb_6rParameters* bras, Gb_th* eth,
 			  Gb_q6* old_q,
-			  Gb_dataMGD* d, Gb_q6* sq) 
+			  Gb_dataMGD* d, Gb_q6* sq)
 {
   int e1, e2, e3;
   Gb_statusMGI status;
@@ -426,36 +428,36 @@ Gb_statusMGI Gb_MGI6rTh_O(Gb_6rParameters* bras, Gb_th* eth,
   int i, iMin = -1;
 
   Gb_MGD6r_gete1e2e3(bras, old_q, &e1, &e2, &e3);
-  
+
   status = Gb_MGI6rTh(bras, eth, e1, e2, e3, old_q, d, sq);
   if (status == MGI_OK || status == MGI_SINGULAR)
     return status;
 
   for (i=0; i<8; i++) {
-    status = 
+    status =
       Gb_MGI6rTh(bras, eth,  eee[i][0],  eee[i][1], eee[i][2], old_q, d, sq);
     if (status == MGI_OK || status == MGI_SINGULAR) {
       erreur= Gb_q6Dist(sq, old_q);
       if (erreur < errMin) {
-	errMin = erreur;
-	iMin = i;
+				errMin = erreur;
+				iMin = i;
       }
     }
   }
   if (iMin < 0) return MGI_ERROR;
   // not optimum but more simple to garantee d is correct
-  status = 
+  status =
     Gb_MGI6rTh(bras, eth,  eee[i][0],  eee[i][1], eee[i][2], old_q, d, sq);
   return status;
 }
 
 /*
- *  Gb_MDD6r calcule le modèle différentiel direct
+ *  Gb_MDD6r calcule le modï¿½le diffï¿½rentiel direct
  *
- *   ATTENTION  d  doit avoir été initialisé par le calcul du modèle
- *     géométrique direct : fonction Gb_MGD6rTh
+ *   ATTENTION  d  doit avoir ï¿½tï¿½ initialisï¿½ par le calcul du modï¿½le
+ *     gï¿½omï¿½trique direct : fonction Gb_MGD6rTh
  */
-void Gb_MDD6r(Gb_6rParameters* bras, Gb_dataMGD* d, Gb_th* t06, 
+void Gb_MDD6r(Gb_6rParameters* bras, Gb_dataMGD* d, Gb_th* t06,
 	       Gb_jac* jac)
 {
   double r4 = bras->r4;
