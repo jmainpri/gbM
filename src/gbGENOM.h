@@ -5,6 +5,8 @@
 #ifndef GB_GENOM_H
 #define GB_GENOM_H
 
+#include "gbManip.h"
+
 typedef struct Gb_vitesse {
   double x;
   double y;
