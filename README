@@ -1,3 +1,4 @@
+
 #Commands to run to install
 
 ./bootstrap 
@@ -22,6 +23,16 @@ libtoolize
 mkdir build
 cd build
 ../configure --prefix=`pwd`/install --with-tcl=/usr/local/tcl-8.4/lib
+make
+make install
+
+# Mac version
+aclocal -I .
+autoconf
+glibtoolize
+mkdir build
+cd build
+../configure --prefix=`pwd`/install --disable-gbtcl
 make
 make install
 
