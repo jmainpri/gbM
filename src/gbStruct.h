@@ -127,4 +127,14 @@ typedef struct Gb_jac {
   Gb_v6 c6;
 } Gb_jac;
 
+typedef struct Gb_jac7 {
+  Gb_v6 c1;
+  Gb_v6 c2;
+  Gb_v6 c3;
+  Gb_v6 c4;
+  Gb_v6 c5;
+  Gb_v6 c6;
+  Gb_v7 c7;
+} Gb_jac7;
+
 #endif
