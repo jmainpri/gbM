@@ -174,6 +174,225 @@ void kukaLBR_mgd(Gb_q7* Q, double r3, double r5, Gb_th* th07)
 }
 
 
+/* kukaLBR_direct computes geometry and differential direct models
+//  T01 = ( C1   -S1   0   0 )
+//        ( S1    C1   0   0 )
+//        (  0     0   1   0 )
+//  
+//  T12 = ( C2   -S2   0   0 )
+//        (  0     0  -1   0 )
+//        ( S2    C2   0   0 )
+//  
+//  T23 = ( C3   -S3   0   0 )
+//        (  0     0   1  r3 )
+//        (-S3   -C3   0   0 )
+//  
+//  T34 = ( C4   -S4   0   0 )
+//        (  0     0   1   0 )
+//        (-S4   -C4   0   0 )
+//  
+//  T45 = ( C5   -S5   0   0 )
+//        (  0     0  -1 -r5 )
+//        ( S5    C5   0   0 )
+//  
+//  T56 = ( C6   -S6   0   0 )
+//        (  0     0  -1   0 )
+//        ( S6    C6   0   0 )
+//  
+//  T67 = ( C7   -S7   0   0 )
+//        (  0     0   1   0 )
+//        ( -S7  -C7   0   0 )
+//  
+//  
+//                      T12 = ( C2   -S2   0   0 )
+//                            (  0     0  -1   0 )
+//                            ( S2    C2   0   0 )   f1= C1*C2
+//  T01 = ( C1   -S1   0   0 )( f1    f3  S1   0 )   f2= S1*C2
+//        ( S1    C1   0   0 )( f2    f4 -C1   0 )   f3=-C1*S2
+//        (  0     0   1   0 )( S2    C2   0   0 )   f4=-S1*S2
+//  
+//                      T23 = ( C3   -S3   0   0 )   f5= f1*C3-S1*S3 
+//                            (  0     0   1  r3 )   f6= f2*C3+C1*S3
+//                            (-S3   -C3   0   0 )   f7= S2*C3
+//  T02 = ( f1    f3  S1   0 )( f5    f8  f3 f11 )   f8=-f1*S3-S1*C3
+//        ( f2    f4 -C1   0 )( f6    f9  f4 f12 )   f9=-f2*S3+C1*C3
+//        ( S2    C2   0   0 )( f7   f10  C2 f13 )   f10=-S2*S3
+//  						 f11= f3*r3
+//                                                   f12= f4*r3
+//  						 f13= C2*r3
+//  
+//                      T34 = ( C4   -S4   0   0 )   f14= f5*C4-f3*S4
+//                            (  0     0   1   0 )   f15= f6*C4-f4*S4
+//                            (-S4   -C4   0   0 )   f16= f7*C4-C2*S4
+//  T03 = ( f5    f8  f3 f11 )( f14  f17  f8 f11 )   f17=-f5*S4-f3*C4 
+//        ( f6    f9  f4 f12 )( f15  f18  f9 f12 )   f18=-f6*S4-f4*C4
+//        ( f7   f10  C2 f13 )( f16  f19 f10 f13 )   f19=-f7*S4-C2*C4
+//  
+//                      T45 = ( C5   -S5   0   0 )   f20= f14*C5+f8*S5
+//                            (  0     0  -1 -r5 )   f21= f15*C5+f9*S5
+//                            ( S5    C5   0   0 )   f22= f16*C5+F10*S5
+//  T04 = ( f14  f17  f8 f11 )( f20  f23-f17 f26 )   f23=-f14*S5+f8*C5
+//        ( f15  f18  f9 f12 )( f21  f24-f18 f27 )   f24=-f15*S5+f9*C5
+//        ( f16  f19 f10 f13 )( f22  f25-f19 f28 )   f25=-f16*S5+f10*C5
+//                                                   f26=-f17*r5+f11
+//                                                   f27=-f18*r5+f12
+//                                                   f28=-f19*r5+f13
+//  
+//  
+//                      T56 = ( C6   -S6   0   0 )   f29= f20*C6-f17*S6
+//                            (  0     0  -1   0 )   f30= f21*C6-f18*S6
+//                            ( S6    C6   0   0 )   f31= f22*C6-f19*S6
+//  T05 = ( f20  f23-f17 f26 )( f29  f32-f23 f26 )   f32=-f20*S6-f17*C6 
+//        ( f21  f24-f18 f27 )( f30  f33-f24 f27 )   f33=-f21*S6-f18*C6
+//        ( f22  f25-f19 f28 )( f31  f34-f25 f28 )   f34=-f22*S6-f19*C6
+//  
+//  
+//  
+//                      T67 = ( C7   -S7   0   0 )   f35= f29*C7+f23*S7
+//                            (  0     0   1   0 )   f36= f30*C7+f24*S7
+//                            ( -S7  -C7   0   0 )   f37= f31*C7+f25*S7
+//  T06 = ( f29  f32-f23 f26 )( f35  f38 f32 f26 )   f38=-f29*S7+f23*C7
+//        ( f30  f33-f24 f27 )( f36  f39 f33 f27 )   f39=-f30*S7+f24*C7
+//        ( f31  f34-f25 f28 )( f37  f40 f34 f28 )   f40=-f31*S7+f25*C7
+//  
+//  
+//  P7= O_0O_7 (position of the wrist center relatively to frame R_0)
+//  Pu= 0_3O_7 (position of the wrist center relatively to frame R_3)
+//  
+//  Jac=( z1^P7  z2^P7  z3^P7  z4^Pu    0    0   0  )
+//      (   z1     z2     z3     z4    z5   z6  z7  )
+//  
+//  z1^P7 = | 0   |f26   |-f27
+//          | 0 ^ |f27 = |f26
+//          | 1   |f28   |0
+//  
+//  z2^P7 = |S1     |f26   |-C1*f28
+//          |-C1  ^ |f27 = |-S1*f28
+//          |0      |f28   |S1*f27+C1*f26
+//  
+//  z3^P7 = |f3    |f26   |f4*f28-C2f27
+//          |f4  ^ |f27 = |C2*f26-f3*f28
+//          |C2    |f28   |f3*f27-f4*f26
+//  
+//  z4^Pu = z4 ^(-r5 y4) = r5 y4 ^ z4 = r5 x4 = r5 * [f14  f15  f16]
+//  
+ */
+void kukaLBR_direct(Gb_q7* Q, double r3, double r5, Gb_th* th07, Gb_jac7 jac7)
+{
+  double m;
+  double C1 = cos (Q->q1);
+  double C2 = cos (Q->q2);
+  double C3 = cos (Q->q3);
+  double C4 = cos (Q->q4);
+  double C5 = cos (Q->q5);
+  double C6 = cos (Q->q6);
+  double C7 = cos (Q->q7);
+  double S1 = sin (Q->q1);
+  double S2 = sin (Q->q2);
+  double S3 = sin (Q->q3);
+  double S4 = sin (Q->q4);
+  double S5 = sin (Q->q5);
+  double S6 = sin (Q->q6);
+  double S7 = sin (Q->q7);
+
+  double  f1 = C1*C2;
+  double  f2 = S1*C2;
+  double  f3 =-C1*S2;
+  double  f4 =-S1*S2;
+  double  f5 = f1*C3-S1*S3;
+  double  f6 = f2*C3+C1*S3;
+  double  f7 = S2*C3;
+  double  f8 =-f1*S3-S1*C3;
+  double  f9 =-f2*S3+C1*C3;
+  double f10 =-S2*S3;
+  double f11 = f3*r3;
+  double f12 = f4*r3;
+  double f13 = C2*r3;
+  double f14 = f5*C4-f3*S4;
+  double f15 = f6*C4-f4*S4;
+  double f16 = f7*C4-C2*S4;
+  double f17 =-f5*S4-f3*C4;
+  double f18 =-f6*S4-f4*C4;
+  double f19 =-f7*S4-C2*C4;
+  double f20 = f14*C5+f8*S5;
+  double f21 = f15*C5+f9*S5;
+  double f22 = f16*C5+F10*S5;
+  double f23 =-f14*S5+f8*C5;
+  double f24 =-f15*S5+f9*C5;
+  double f25 =-f16*S5+f10*C5;
+  double f26 =-f17*r5+f11;
+  double f27 =-f18*r5+f12;
+  double f28 =-f19*r5+f13;
+  double f29 = f20*C6-f17*S6;
+  double f30 = f21*C6-f18*S6;
+  double f31 = f22*C6-f19*S6;
+  double f32 =-f20*S6-f17*C6;
+  double f33 =-f21*S6-f18*C6;
+  double f34 =-f22*S6-f19*C6;
+  double f35 = f29*C7+f23*S7;
+  double f36 = f30*C7+f24*S7;
+  double f37 = f31*C7+f25*S7;
+  double f38 =-f29*S7+f23*C7;
+  double f39 =-f30*S7+f24*C7;
+  double f40 =-f31*S7+f25*C7;
+
+  jac7.c1.x  = -f27;
+  jac7.c1.y  = f26;
+  jac7.c1.z  = 0;
+  jac7.c1.rx = 0;
+  jac7.c1.ry = 0;
+  jac7.c1.rz = 1;
+  jac7.c2.x  = -C1*f28;
+  jac7.c2.y  = -S1*f28;
+  jac7.c2.z  = S1*f27+C1*f26;
+  jac7.c2.rx = S1;
+  jac7.c2.ry = -C1;
+  jac7.c2.rz = 0;
+  jac7.c3.x  = f4*f28-C2*f27;
+  jac7.c3.y  = C2*f26-f3*f28;
+  jac7.c3.z  = f3*f27-f4*f26;
+  jac7.c3.rx = f3;
+  jac7.c3.ry = f4;
+  jac7.c3.rz = C2;
+  jac7.c4.x  = r5 * f14;
+  jac7.c4.y  = r5 * f15;
+  jac7.c4.z  = r5 * f16;
+  jac7.c4.rx = f8;
+  jac7.c4.ry = f9;
+  jac7.c4.rz = f10;
+  jac7.c5.x  = 0;
+  jac7.c5.y  = 0;
+  jac7.c5.z  = 0;
+  jac7.c5.rx = -f17;
+  jac7.c5.ry = -f18;
+  jac7.c5.rz = -f19;
+  jac7.c6.x  = 0;
+  jac7.c6.y  = 0;
+  jac7.c6.z  = 0;
+  jac7.c6.rx = -f23;
+  jac7.c6.ry = -f24;
+  jac7.c6.rz = -f25;
+  jac7.c7.x  = 0;
+  jac7.c7.y  = 0;
+  jac7.c7.z  = 0;
+  jac7.c7.rx = f32;
+  jac7.c7.ry = f33;
+  jac7.c7.rz = f34;
+
+  th07.vx.x = f35;
+  th07.vx.y = f36;
+  th07.vx.z = f37;
+  th07.vy.x = f38;
+  th07.vy.y = f39;
+  th07.vy.z = f40;
+  th07.vz.x = f32;
+  th07.vz.y = f33;
+  th07.vz.z = f34;
+  th07.vp.x = f26;
+  th07.vp.y = f27;
+  th07.vp.z = f28;
+}
+
 /*
  X*X + Y*Y + Z*Z = d29*d29 + d30*d30 + d24 *d24
     =  C1*C1* d23*d23 + S1*S1* d18*d18 + 2* C1*d23*S1*d18
