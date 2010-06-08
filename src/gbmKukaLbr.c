@@ -279,7 +279,6 @@ void kukaLBR_mgd(Gb_q7* Q, double r3, double r5, Gb_th* th07)
  */
 void kukaLBR_direct(Gb_q7* Q, double r3, double r5, Gb_th* th07, Gb_jac7 jac7)
 {
-  double m;
   double C1 = cos (Q->q1);
   double C2 = cos (Q->q2);
   double C3 = cos (Q->q3);
@@ -442,8 +441,8 @@ C4 = d24*d24 + d29*d29 + d30*d30 - r5*r5 - r3*r3 / 2. / r5 / r3
   d30 = S1 * d23 - C1 * d18;
  */
 
-int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
-		   Gb_q7* q) 
+Gb_statusMGI kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
+			    double epsilon, Gb_q7* q) 
 {
   double C1, C2, C3, C4, C5, C6, C7;
   double S1, S2, S3, S4, S5, S6, S7;
@@ -458,13 +457,15 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
   double d24 = th07->vp.z;
   double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15;
   double d16, d17, d18, d19, d21, d23;
+  Gb_statusMGI returnValue = MGI_OK;
+
   q->q3 = Qp->q3;
   C3 = cos(q->q3);
   S3 = sin(q->q3);
 
   C4 = ( d24*d24 + d29*d29 + d30*d30 - r5*r5 - r3*r3 ) / 2. / r5 / r3;
   if ( C4 < -1.-epsilon ) { 
-    return -1;
+    return MGI_ERROR;
   } else if ( C4 < -1 )  { 
     C4 = -1;
     S4 = 0;
@@ -479,23 +480,25 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
     S4 = 0;
     q->q4 = 0;
   } else { 
-    return -1;
+    return MGI_ERROR;
   }
   d11 = S4 * r5;
   d12 = C4 * r5;
   d17 = C3 * d11;
   d18 = -S3 * d11;
   if ( (d29*d29 + d30*d30 -d18*d18) < -epsilon) {
-    return -2;
+    return MGI_ERROR;
   } else if ( (d29*d29 + d30*d30 -d18*d18) < 0) {
     d23 = 0;
-    // approximated ??
+    // approximated
+    returnValue = MGI_APPROXIMATE;
   } else {
     d23 = sqrt(d29*d29 + d30*d30 -d18*d18);
   }
   //if ?? autre solution
   if ((d23*d23 + d18*d18) == 0) {
     // return value  singular configuration
+    returnValue = MGI_SINGULAR;
     q->q1 = Qp->q1;
     C1 = cos(Qp->q1);
     S1 = sin(Qp->q1);
@@ -510,6 +513,7 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
   d14 = S1 * d25 - C1 * d26;
   if (( d17*d17+(d12+r3)*(d12+r3) ) == 0) {
     // return value  singular configuration
+    returnValue = MGI_SINGULAR;
     q->q2 = Qp->q2;
     C2 = cos(Qp->q2);
     S2 = sin(Qp->q2);
@@ -535,6 +539,7 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
   q->q6 = atan2(S6, C6);
   if (S6 == 0) {
     // return value  singular configuration
+    returnValue = MGI_SINGULAR;
     q->q6 = Qp->q6;
     C6 = cos(Qp->q6);
     S6 = sin(Qp->q6);
@@ -547,6 +552,7 @@ int kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon,
   S7 = -S5*d3 + C5*d4;
   C7 = C6*d1 + S6*d2;
   q->q7 = atan2(S7, C7);
+  return returnValue;
 }
 
 Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
