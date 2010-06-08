@@ -540,9 +540,9 @@ Gb_statusMGI kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   if (S6 == 0) {
     // return value  singular configuration
     returnValue = MGI_SINGULAR;
-    q->q6 = Qp->q6;
-    C6 = cos(Qp->q6);
-    S6 = sin(Qp->q6);
+    q->q5 = Qp->q5;
+    C5 = cos(Qp->q5);
+    S5 = sin(Qp->q5);
   } else {
     C5 = -d5/S6;
     S5 = -d6/S6;
@@ -649,9 +649,9 @@ Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   q->q6 = atan2(S6, C6);
   if (S6 == 0) {
     ret = MGI_SINGULAR;
-    q->q6 = Qp->q6;
-    C6 = cos(Qp->q6);
-    S6 = sin(Qp->q6);
+    q->q5 = Qp->q5;
+    C5 = cos(Qp->q5);
+    S5 = sin(Qp->q5);
   } else {
     C5 = -d5/S6;
     S5 = -d6/S6;
