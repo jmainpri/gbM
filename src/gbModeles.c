@@ -447,7 +447,7 @@ Gb_statusMGI Gb_MGI6rTh_O(Gb_6rParameters* bras, Gb_th* eth,
   if (iMin < 0) return MGI_ERROR;
   // not optimum but more simple to garantee d is correct
   status =
-    Gb_MGI6rTh(bras, eth,  eee[i][0],  eee[i][1], eee[i][2], old_q, d, sq);
+    Gb_MGI6rTh(bras, eth,  eee[iMin][0],  eee[iMin][1], eee[iMin][2], old_q, d, sq);
   return status;
 }
 
