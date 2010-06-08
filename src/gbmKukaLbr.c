@@ -379,18 +379,18 @@ void kukaLBR_direct(Gb_q7* Q, double r3, double r5, Gb_th* th07, Gb_jac7 jac7)
   jac7.c7.ry = f33;
   jac7.c7.rz = f34;
 
-  th07.vx.x = f35;
-  th07.vx.y = f36;
-  th07.vx.z = f37;
-  th07.vy.x = f38;
-  th07.vy.y = f39;
-  th07.vy.z = f40;
-  th07.vz.x = f32;
-  th07.vz.y = f33;
-  th07.vz.z = f34;
-  th07.vp.x = f26;
-  th07.vp.y = f27;
-  th07.vp.z = f28;
+  th07->vx.x = f35;
+  th07->vx.y = f36;
+  th07->vx.z = f37;
+  th07->vy.x = f38;
+  th07->vy.y = f39;
+  th07->vy.z = f40;
+  th07->vz.x = f32;
+  th07->vz.y = f33;
+  th07->vz.z = f34;
+  th07->vp.x = f26;
+  th07->vp.y = f27;
+  th07->vp.z = f28;
 }
 
 /*
