@@ -134,7 +134,7 @@ typedef struct Gb_jac7 {
   Gb_v6 c4;
   Gb_v6 c5;
   Gb_v6 c6;
-  Gb_v7 c7;
+  Gb_v6 c7;
 } Gb_jac7;
 
 #endif
