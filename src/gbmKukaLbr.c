@@ -60,7 +60,7 @@ T67 = ( C7   -S7   0   0 )
 
 #include "math.h"
 #include <stdio.h>
-#include "gbStruct.h"
+#include "gb.h"
 
 // to eventually put in gb.c
 void Gb_th_print(Gb_th *th, char* s)
@@ -316,7 +316,7 @@ void kukaLBR_direct(Gb_q7* Q, double r3, double r5, Gb_th* th07, Gb_jac7 jac7)
   double f19 =-f7*S4-C2*C4;
   double f20 = f14*C5+f8*S5;
   double f21 = f15*C5+f9*S5;
-  double f22 = f16*C5+F10*S5;
+  double f22 = f16*C5+f10*S5;
   double f23 =-f14*S5+f8*C5;
   double f24 =-f15*S5+f9*C5;
   double f25 =-f16*S5+f10*C5;
