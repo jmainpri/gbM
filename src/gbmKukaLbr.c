@@ -458,6 +458,7 @@ Gb_statusMGI kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15;
   double d16, d17, d18, d19, d21, d23;
   Gb_statusMGI returnValue = MGI_OK;
+  double u1;
 
   q->q3 = Qp->q3;
   C3 = cos(q->q3);
@@ -486,40 +487,46 @@ Gb_statusMGI kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   d12 = C4 * r5;
   d17 = C3 * d11;
   d18 = -S3 * d11;
-  if ( (d29*d29 + d30*d30 -d18*d18) < -epsilon) {
+  d23 = d29*d29 + d30*d30 -d18*d18;
+  if ( (d23) < -epsilon) {
     return MGI_ERROR;
-  } else if ( (d29*d29 + d30*d30 -d18*d18) < 0) {
+  } else if ( (d23) < 0) {
     d23 = 0;
     // approximated
     returnValue = MGI_APPROXIMATE;
   } else {
-    d23 = sqrt(d29*d29 + d30*d30 -d18*d18);
+    d23 = sqrt(d23);
   }
   //if ?? autre solution
-  if ((d23*d23 + d18*d18) == 0) {
-    // return value  singular configuration
+  u1 = d23*d23 + d18*d18;
+  if (u1 < epsilon) {
     returnValue = MGI_SINGULAR;
+  }
+  if ((u1) == 0) {
+    // return value  singular configuration
     q->q1 = Qp->q1;
     C1 = cos(Qp->q1);
     S1 = sin(Qp->q1);
   } else {
-    C1 = (d23*d29 - d18*d30) / (d23*d23 + d18*d18);
-    S1 = (d18*d29 + d23*d30) / (d23*d23 + d18*d18);
+    C1 = (d23*d29 - d18*d30) / (u1);
+    S1 = (d18*d29 + d23*d30) / (u1);
     q->q1 = atan2(S1, C1);
   }
   d21 = C1 * d27 + S1 * d28;
   d16 = S1 * d27 - C1 * d28;
   d19 = C1 * d25 + S1 * d26;
   d14 = S1 * d25 - C1 * d26;
-  if (( d17*d17+(d12+r3)*(d12+r3) ) == 0) {
-    // return value  singular configuration
+  u1 = d17*d17+(d12+r3)*(d12+r3);
+  if (u1 < epsilon) {
     returnValue = MGI_SINGULAR;
+  }
+  if (( u1 ) == 0) {
     q->q2 = Qp->q2;
     C2 = cos(Qp->q2);
     S2 = sin(Qp->q2);
   } else {
-    C2 = (d17*d23 + (d12+r3)*d24) / (d17*d17+(d12+r3)*(d12+r3));
-    S2 = (-(d12+r3)*d23 + d17*d24) / (d17*d17+(d12+r3)*(d12+r3));
+    C2 = (d17*d23 + (d12+r3)*d24) / (u1);
+    S2 = (-(d12+r3)*d23 + d17*d24) / (u1);
     q->q2 = atan2(S2, C2);
   }
   d15 = C2*d21+S2*d22;
@@ -535,11 +542,12 @@ Gb_statusMGI kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   d3 = C4*d7 - S4*d8;
   d2 = S4*d7 + C4*d8;
   S6= sqrt(d5*d5 + d6*d6);
+  if (S6 < epsilon) {
+    returnValue = MGI_SINGULAR;
+  }
   if (sin(Qp->q6) < 0) S6 = -S6;
   q->q6 = atan2(S6, C6);
   if (S6 == 0) {
-    // return value  singular configuration
-    returnValue = MGI_SINGULAR;
     q->q5 = Qp->q5;
     C5 = cos(Qp->q5);
     S5 = sin(Qp->q5);
@@ -559,7 +567,6 @@ Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
 			     double epsilon, int e1, int e2, int e3,
 			     Gb_q7* q) 
 {
-  Gb_statusMGI ret = MGI_OK;
   double C1, C2, C3, C4, C5, C6, C7;
   double S1, S2, S3, S4, S5, S6, S7;
   double d25 = th07->vx.x;
@@ -573,6 +580,9 @@ Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   double d24 = th07->vp.z;
   double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15;
   double d16, d17, d18, d19, d21, d23;
+  Gb_statusMGI returnValue = MGI_OK;
+  double u1;
+
   q->q3 = Qp->q3;
   C3 = cos(q->q3);
   S3 = sin(q->q3);
@@ -600,36 +610,44 @@ Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   d12 = C4 * r5;
   d17 = C3 * d11;
   d18 = -S3 * d11;
-  if ( (d29*d29 + d30*d30 -d18*d18) < -epsilon) {
+  d23 = d29*d29 + d30*d30 -d18*d18;
+  if ( (d23) < -epsilon) {
     return MGI_ERROR;
-  } else if ( (d29*d29 + d30*d30 -d18*d18) < 0) {
+  } else if ( (d23) < 0) {
     d23 = 0;
+    returnValue = MGI_APPROXIMATE;
   } else {
-    d23 = sqrt(d29*d29 + d30*d30 -d18*d18);
+    d23 = sqrt(d23);
     d23 *= e1;
   }
-  if ((d23*d23 + d18*d18) == 0) {
-    ret = MGI_SINGULAR;
+  u1 = d23*d23 + d18*d18;
+  if (u1 < epsilon) {
+    returnValue = MGI_SINGULAR;
+  }
+  if ((u1) == 0) {
     q->q1 = Qp->q1;
     C1 = cos(Qp->q1);
     S1 = sin(Qp->q1);
   } else {
-    C1 = (d23*d29 - d18*d30) / (d23*d23 + d18*d18);
-    S1 = (d18*d29 + d23*d30) / (d23*d23 + d18*d18);
+    C1 = (d23*d29 - d18*d30) / (u1);
+    S1 = (d18*d29 + d23*d30) / (u1);
     q->q1 = atan2(S1, C1);
   }
   d21 = C1 * d27 + S1 * d28;
   d16 = S1 * d27 - C1 * d28;
   d19 = C1 * d25 + S1 * d26;
   d14 = S1 * d25 - C1 * d26;
-  if (( d17*d17+(d12+r3)*(d12+r3) ) == 0) {
-    ret = MGI_SINGULAR;
+  u1 = d17*d17+(d12+r3)*(d12+r3);
+  if (u1 < epsilon) {
+    returnValue = MGI_SINGULAR;
+  }
+  if (u1 == 0) {
     q->q2 = Qp->q2;
     C2 = cos(Qp->q2);
     S2 = sin(Qp->q2);
   } else {
-    C2 = (d17*d23 + (d12+r3)*d24) / (d17*d17+(d12+r3)*(d12+r3));
-    S2 = (-(d12+r3)*d23 + d17*d24) / (d17*d17+(d12+r3)*(d12+r3));
+    C2 = (d17*d23 + (d12+r3)*d24) / (u1);
+    S2 = (-(d12+r3)*d23 + d17*d24) / (u1);
     q->q2 = atan2(S2, C2);
   }
   d15 = C2*d21+S2*d22;
@@ -645,10 +663,12 @@ Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   d3 = C4*d7 - S4*d8;
   d2 = S4*d7 + C4*d8;
   S6= sqrt(d5*d5 + d6*d6);
+  if (S6 < epsilon) {
+    returnValue = MGI_SINGULAR;
+  }
   S6 *= e3;
   q->q6 = atan2(S6, C6);
   if (S6 == 0) {
-    ret = MGI_SINGULAR;
     q->q5 = Qp->q5;
     C5 = cos(Qp->q5);
     S5 = sin(Qp->q5);
@@ -661,7 +681,7 @@ Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   S7 = -S5*d3 + C5*d4;
   C7 = C6*d1 + S6*d2;
   q->q7 = atan2(S7, C7);
-  return ret;
+  return returnValue;
 }
 
 /*
