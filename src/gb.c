@@ -574,6 +574,17 @@ void Gb_th_x_vitesse(const Gb_th* th, const Gb_vitesse* v, Gb_vitesse* vs)
   vs->z = vs3->z  + th->vp.x * vsr3->y - th->vp.y * vsr3->x;
 }
 
+void Gb_th_print(const Gb_th* th, const char* label)
+{
+  if (label != NULL) printf("%s:\n", label);
+  printf(" | %5.2f  %5.2f  %5.2f  %5.2f |\n", th->vx.x, th->vy.x, th->vz.x, th->vp.x);
+  printf(" | %5.2f  %5.2f  %5.2f  %5.2f |\n", th->vx.y, th->vy.y, th->vz.y, th->vp.y);
+  printf(" | %5.2f  %5.2f  %5.2f  %5.2f |\n", th->vx.z, th->vy.z, th->vz.z, th->vp.z);
+  printf(" | %3d    %3d    %3d    %3d   |\n", 0, 0, 0, 1);
+  return;
+} // Added by J. Santos
+
+
 void Gb_quat_x_v3(const Gb_quat* q, const Gb_v3* u, Gb_v3* vs)
 {
   Gb_th th;
