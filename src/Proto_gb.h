@@ -49,6 +49,7 @@ extern void Gb_th_x_force ( const Gb_th* th, const Gb_force* f, Gb_force* fs );
 extern void Gb_th_inverse ( const Gb_th* th, Gb_th* ths );
 extern void Gb_thInv_x_force ( const Gb_th* th, const Gb_force* f, Gb_force* fs );
 extern void Gb_th_x_vitesse ( const Gb_th* th, const Gb_vitesse* v, Gb_vitesse* vs );
+extern void Gb_th_print(const Gb_th* th, const char* label);
 extern void Gb_quat_x_v3 ( const Gb_quat* q, const Gb_v3* u, Gb_v3* vs );
 extern void Gb_quat_x_quat ( const Gb_quat* q1, const Gb_quat* q2, Gb_quat* qs );
 extern void Gb_quat_inverse ( const Gb_quat* qi, Gb_quat* qo );
