@@ -16,7 +16,9 @@ extern void Gb_MGD6r_6Th ( Gb_6rParameters* bras, Gb_q6* eq, Gb_dataMGD* d, Gb_t
 extern Gb_statusMGI Gb_MGI6rTh ( Gb_6rParameters* bras, Gb_th* eth, int e1, int e2, int e3, Gb_q6* old_q, Gb_dataMGD* d, Gb_q6* sq );
 Gb_statusMGI Gb_MGI6rTh_O(Gb_6rParameters* bras, Gb_th* eth, Gb_q6* old_q, Gb_dataMGD* d, Gb_q6* sq);
 extern void Gb_MDD6r ( Gb_6rParameters* bras, Gb_dataMGD* d, Gb_th* t06, Gb_jac* jac );
+extern void kukaLBR_mgd(Gb_q7* Q, double r3, double r5, Gb_th* th07);
 extern Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon, int e1, int e2, int e3, Gb_q7* q) ;
+extern void kukaLBR_gete1e2e3(double r3, double r5, Gb_q7* eq, int* e1, int* e2, int* e3);
 
 #else /* __STDC__ */
 
@@ -30,6 +32,7 @@ extern Gb_statusMGI Gb_MGI6rTh (/* Gb_6rParameters* bras, Gb_th* eth, int e1, in
 extern void Gb_MDD6r (/* Gb_6rParameters* bras, Gb_dataMGD* d, Gb_th* t06, Gb_jac* jac */);
 extern void kukaLBR_mgd(Gb_q7* Q, double r3, double r5, Gb_th* th07);
 extern Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5, double epsilon, int e1, int e2, int e3, Gb_q7* q) ;
+extern void kukaLBR_gete1e2e3(double r3, double r5, Gb_q7* eq, int* e1, int* e2, int* e3);
 
 #endif /* __STDC__ */
 #endif /* __CEXTRACT__ */
