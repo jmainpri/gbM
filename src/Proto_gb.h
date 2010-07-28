@@ -63,6 +63,8 @@ extern void Gb_q6_get(const Gb_q6* e, double* q1, double* q2, double* q3, double
 extern void Gb_q6_print(const Gb_q6* e);
 extern void Gb_quat_compute_relativeDep_to_interpole(const Gb_quat* q1, const Gb_quat* q2, Gb_dep* relDep);
 extern void Gb_quat_interpole_depRel(const Gb_quat* q1, const Gb_quat* q2, double s, Gb_quat* qo, Gb_dep *relDep);
+extern void Gb_th_read_euler(Gb_th* th, double Tx, double Ty, double Tz, double Rx, double Ry, double Rz);
+extern void Gb_th_print_euler(Gb_th* th, Gb_v6* s);
 
 #else /* __STDC__ */
 
@@ -116,5 +118,7 @@ extern void Gb_q6_get(/*const Gb_q6* e, double* q1, double* q2, double* q3, doub
 extern void Gb_q6_print(/*const Gb_q6* e*/);
 extern void Gb_quat_compute_relativeDep_to_interpole(/*const Gb_quat* q1, const Gb_quat* q2, Gb_dep* relDep*/);
 extern void Gb_quat_interpole_depRel();
+extern void Gb_th_read_euler(/*Gb_th* th, double Tx, double Ty, double Tz, double Rx, double Ry, double Rz*/);
+extern void Gb_th_print_euler(/*Gb_th* th, Gb_v6* s*/);
 #endif /* __STDC__ */
 #endif /* __CEXTRACT__ */
