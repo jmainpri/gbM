@@ -179,7 +179,14 @@ void Gb_v3_print(const Gb_v3* u)
 {
   printf("u->x = %f ; u->y = %f ; u->z = %f \n", u->x, u->y, u->z);
   return;
-}// Added by X. Broquere; already exists in tcl
+} // Added by X. Broquere; already exists in tcl
+
+void Gb_v6_print(const Gb_v6* u)
+{
+  printf("x = %f ; y = %f ; z = %f ; rx = %f ; ry = %f ; rz = %f\n",
+         u->x, u->y, u->z, u->rx, u->ry, u->rz);
+  return;
+} // Added by J. Santos
 
 void Gb_dep_set(Gb_dep* dep, double x, double y, double z,
 		double rx, double ry, double rz, double a)
@@ -412,6 +419,26 @@ Gb_v3* Gb_v6c_get_r(const Gb_v6* v)
 }
 
 
+Gb_v3* Gb_dep_get_t(Gb_dep* dep)
+{
+  return (Gb_v3*) &dep->x;
+}
+
+const Gb_v3* Gb_depc_get_t(const Gb_dep* dep)
+{
+  return (Gb_v3*) &dep->x;
+}
+
+Gb_v3* Gb_dep_get_r(Gb_dep* dep)
+{
+  return (Gb_v3*) &dep->rx;
+}
+
+const Gb_v3* Gb_depc_get_r(const Gb_dep* dep)
+{
+  return (Gb_v3*) &dep->rx;
+}
+
 
 void Gb_th_x_v3(const Gb_th* th, const Gb_v3* v, Gb_v3* vs)
 {
@@ -459,6 +486,23 @@ void Gb_thInv_x_v6(const Gb_th* th, const Gb_v6* v, Gb_v6* vs)
 {
   Gb_thInv_x_v3(th, Gb_v6c_get_t(v), Gb_v6_get_t(vs));
   Gb_thInv_x_v3(th, Gb_v6c_get_r(v), Gb_v6_get_r(vs));
+}
+
+void Gb_th_x_dep(const Gb_th* th, const Gb_dep* d, Gb_dep* ds)
+{
+  Gb_dep  tmp;
+
+  tmp.x  = th->vx.x * d->x  + th->vy.x * d->y  + th->vz.x * d->z  + th->vp.x;
+  tmp.y  = th->vx.y * d->x  + th->vy.y * d->y  + th->vz.y * d->z  + th->vp.y;
+  tmp.z  = th->vx.z * d->x  + th->vy.z * d->y  + th->vz.z * d->z  + th->vp.z;
+
+  tmp.rx = th->vx.x * d->rx + th->vy.x * d->ry + th->vz.x * d->rz;
+  tmp.ry = th->vx.y * d->rx + th->vy.y * d->ry + th->vz.y * d->rz;
+  tmp.rz = th->vx.z * d->rx + th->vy.z * d->ry + th->vz.z * d->rz;
+
+  tmp.a  = d->a;
+  
+  *ds = tmp;
 }
 
 void Gb_th_produit(const Gb_th* a, const Gb_th* b, Gb_th* s)
