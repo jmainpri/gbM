@@ -18,7 +18,7 @@ T34 = ( C4   -S4   0   0 )
       (-S4   -C4   0   0 )
 
 T45 = ( C5   -S5   0   0 )
-      (  0     0  -1  r5 )
+      (  0     0  -1 -r5 )
       ( S5    C5   0   0 )
 
 T56 = ( C6   -S6   0   0 )
@@ -208,9 +208,9 @@ void kukaLBR_mgd(Gb_q7* Q, double r3, double r5, Gb_th* th07)
 //  T02 = ( f1    f3  S1   0 )( f5    f8  f3 f11 )   f8=-f1*S3-S1*C3
 //        ( f2    f4 -C1   0 )( f6    f9  f4 f12 )   f9=-f2*S3+C1*C3
 //        ( S2    C2   0   0 )( f7   f10  C2 f13 )   f10=-S2*S3
-//  						 f11= f3*r3
+//                                                   f11= f3*r3
 //                                                   f12= f4*r3
-//  						 f13= C2*r3
+//                                                   f13= C2*r3
 //  
 //                      T34 = ( C4   -S4   0   0 )   f14= f5*C4-f3*S4
 //                            (  0     0   1   0 )   f15= f6*C4-f4*S4
@@ -248,24 +248,30 @@ void kukaLBR_mgd(Gb_q7* Q, double r3, double r5, Gb_th* th07)
 //  
 //  
 //  P7= O_0O_7 (position of the wrist center relatively to frame R_0)
-//  Pu= 0_3O_7 (position of the wrist center relatively to frame R_3)
+//  Pu= 0_3O_7 (position of the wrist center relatively to frame R_3) = -r5 y4
 //  
-//  Jac=( z1^P7  z2^P7  z3^P7  z4^Pu    0    0   0  )
+//  Jac=( z1^P7  z2^P7  z3^Pu  z4^Pu    0    0   0  )
 //      (   z1     z2     z3     z4    z5   z6  z7  )
 //  
 //  z1^P7 = | 0   |f26   |-f27
-//          | 0 ^ |f27 = |f26
-//          | 1   |f28   |0
+//          | 0 ^ |f27 = | f26
+//          | 1   |f28   |  0
 //  
 //  z2^P7 = |S1     |f26   |-C1*f28
 //          |-C1  ^ |f27 = |-S1*f28
-//          |0      |f28   |S1*f27+C1*f26
+//          | 0     |f28   |S1*f27+C1*f26
 //  
-//  z3^P7 = |f3    |f26   |f4*f28-C2f27
+//  z3^P7 = |f3    |f26   |f4*f28-C2*f27
 //          |f4  ^ |f27 = |C2*f26-f3*f28
 //          |C2    |f28   |f3*f27-f4*f26
+//
+//  z3^Pu = -r5 * |f3    |f17         |f4*f19-C2*f18   |r5*(-f4*f19+C2*f18)
+//                |f4  ^ |f18 = -r5 * |C2*f17-f3*f19 = |r5*(-C2*f17+f3*f19)
+//                |C2    |f19         |f3*f18-f4*f17   |r5*(-f3*f18+f4*f17)
 //  
-//  z4^Pu = z4 ^(-r5 y4) = r5 y4 ^ z4 = r5 x4 = r5 * [f14  f15  f16]
+//  z4^Pu = z4 ^(-r5 y4) = r5 y4 ^ z4 = r5 x4 = | r5*f14
+//                                              | r5*f15
+//                                              | r5*f16
 //  
  */
 void kukaLBR_direct(Gb_q7* Q, double r3, double r5, Gb_th* th07, Gb_jac7 jac7)
@@ -338,9 +344,9 @@ void kukaLBR_direct(Gb_q7* Q, double r3, double r5, Gb_th* th07, Gb_jac7 jac7)
   jac7.c2.rx = S1;
   jac7.c2.ry = -C1;
   jac7.c2.rz = 0;
-  jac7.c3.x  = f4*f28-C2*f27;
-  jac7.c3.y  = C2*f26-f3*f28;
-  jac7.c3.z  = f3*f27-f4*f26;
+  jac7.c3.x  = r5*(-f4*f19+C2*f18);
+  jac7.c3.y  = r5*(-C2*f17+f3*f19);
+  jac7.c3.z  = r5*(-f3*f18+f4*f17);
   jac7.c3.rx = f3;
   jac7.c3.ry = f4;
   jac7.c3.rz = C2;
