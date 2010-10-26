@@ -585,7 +585,8 @@ Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   S3 = sin(q->q3);
 
   C4 = ( d24*d24 + d29*d29 + d30*d30 - r5*r5 - r3*r3 ) / 2. / r5 / r3;
-  if ( C4 < -1.-epsilon ) { //printf("  C4 = %f  ", C4);
+  if ( C4 < -1.-epsilon ) {
+    //printf("  C4 = %f  ", C4);
     return MGI_ERROR;
   } else if ( C4 < -1 )  {
     C4 = -1;
@@ -599,7 +600,8 @@ Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
     C4 = 1;
     S4 = 0;
     q->q4 = 0;
-  } else { //printf("  C4 = %f  ", C4);
+  } else {
+    //printf("  C4 = %f  ", C4);
     return MGI_ERROR;
     // here it is possible to return an approximated q...
   }
@@ -608,7 +610,8 @@ Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   d17 = C3 * d11;
   d18 = -S3 * d11;
   d23 = d29*d29 + d30*d30 -d18*d18;
-  if ( (d23) < -epsilon) { printf("  d23 = %f  ", d23);
+  if ( (d23) < -epsilon) {
+    //printf("  d23 = %f  ", d23);
     return MGI_ERROR;
   } else if ( (d23) < 0) {
     d23 = 0;
