@@ -30,6 +30,10 @@
 //ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //POSSIBILITY OF SUCH DAMAGE.
 
+// Adaptation to gbM by Daniel Sidobre
+//Copyright (c) 2010 LAAS-CNRS
+
+
 //#include <angles/angles.h>
 //#include <pr2_arm_kinematics/pr2_arm_ik.h>
 
@@ -462,7 +466,7 @@ int gbmSolveCosineEqn(double a, double b, double c, double* soln1, double* soln2
 // a1=0.1; r3=0.45;  r5=??
 Gb_statusMGI pr2_mgi_q3_8(Gb_th* th07, Gb_q7* Qp,
 			  double a1, double r3, double r5, Gb_q7 *qMin, Gb_q7 *qMax, 
-			  double epsilon, Gb_q7 qsol[8], int* nbsolution) 
+			  double epsilon, Gb_q7 qsol[32], int* nbsolution) 
 {
   //void PR2ArmIK::computeIKShoulderRoll(const Eigen::Matrix4f &g_in, const double &t3)
   //{
