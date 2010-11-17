@@ -642,7 +642,7 @@ Gb_statusMGI pr2_mgi_q3_8(Gb_th* th07, Gb_q7* Qp,
 #ifdef DEBUG
           std::cout << "t6 " << t6 << std::endl;
 #endif
-	  if (gbmPr2CheckJointLimit(qMin->q5, qMax->q5, t5) == 0) {
+	  if (gbmPr2CheckJointLimit(qMin->q6, qMax->q6, t6) == 0) {
             continue;
           }
 
