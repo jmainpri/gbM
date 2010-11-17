@@ -476,7 +476,7 @@ Gb_statusMGI pr2_mgi_q3_8(Gb_th* th07, Gb_q7* Qp,
 
   double t3 = Qp->q3;
   if (gbmPr2CheckJointLimit(qMin->q3, qMax->q3, t3) == 0) {
-    return;
+    return MGI_ERROR;
   }
   double x = th07->vp.x;
   double y = th07->vp.y;
@@ -527,7 +527,7 @@ Gb_statusMGI pr2_mgi_q3_8(Gb_th* th07, Gb_q7* Qp,
 #ifdef DEBUG
     printf("No solution to quadratic eqn\n");
 #endif
-    return;
+    return MGI_ERROR;
   }
   theta4[0] = acos(theta4[0]);
   theta4[2] = acos(theta4[1]);
@@ -704,6 +704,11 @@ Gb_statusMGI pr2_mgi_q3_8(Gb_th* th07, Gb_q7* Qp,
         }
       }
     }
+  }
+  if (nbsolution > 0) {
+    return MGI_OK;
+  } else {
+    return MGI_ERROR;
   }
 }
 
