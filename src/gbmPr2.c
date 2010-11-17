@@ -39,7 +39,7 @@
 
 #include "math.h"
 #include <stdio.h>
-#include "../gb.h"
+#include "gb.h"
 
 /**** List of angles (for reference) *******
       th1 = shoulder/turret pan
