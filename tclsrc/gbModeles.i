@@ -75,3 +75,10 @@ typedef struct Gb_jac {
 
 void Gb_MDD6r(Gb_6rParameters* bras, Gb_dataMGD* d, Gb_th* t06, 
 	      Gb_jac* jac);
+
+
+void gbmPr2_direct(Gb_q7* Q, double a1, double r3, double r5, Gb_th* th07, Gb_jac7 jac7);
+
+Gb_statusMGI pr2_mgi_q3_8(Gb_th* th07, Gb_q7* Qp,
+			  double a1, double r3, double r5, Gb_q7 *qMin, Gb_q7 *qMax, 
+			  double epsilon, Gb_q7 qsol[32], int* nbsolution);
