@@ -485,7 +485,7 @@ static double IK_EPS = 1e-5;
 //          | f11 ^ |f46   | f12*f45-f10*f47
 //          | f12   |f47   | f10*f46-f11*f45
 //  
- */
+
 
 void gbmPr2_direct(Gb_q7* Q, double a1, double r3, double r5, Gb_th* th07, Gb_jac7 jac7)
 {
@@ -585,9 +585,9 @@ void gbmPr2_direct(Gb_q7* Q, double a1, double r3, double r5, Gb_th* th07, Gb_ja
   jac7.c6.x  =  0;
   jac7.c6.y  =  0;
   jac7.c6.z  =  0;
-  jac7.c6.rx = -f25
-  jac7.c6.ry = -f26
-  jac7.c6.rz = -f27
+  jac7.c6.rx = -f25;
+  jac7.c6.ry = -f26;
+  jac7.c6.rz = -f27;
   jac7.c7.x  =  0;
   jac7.c7.y  =  0;
   jac7.c7.z  =  0;
