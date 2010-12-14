@@ -379,6 +379,237 @@
 
 static double IK_EPS = 1e-5;
 
+//   gbmPr2_direct computes geometry and differential direct models for PR2
+// T01 = ( C1   -S1   0   0 )
+//       ( S1    C1   0   0 )
+//       (  0     0   1   0 )
+// 
+// T12 = ( C2   -S2   0  a1 )
+//       (  0     0   1   0 )
+//       (-S2   -C2   0   0 )
+// 
+// T23 = ( C3   -S3   0   0 )
+//       (  0     0   1  r3 )
+//       (-S3   -C3   0   0 )
+// 
+// T34 = ( C4   -S4   0   0 )
+//       (  0     0  -1   0 )
+//       ( S4    C4   0   0 )
+// 
+// T45 = ( C5   -S5   0   0 )
+//       (  0     0   1  r5 )
+//       (-S5   -C5   0   0 )
+// 
+// T56 = ( C6   -S6   0   0 )
+//       (  0     0  -1   0 )
+//       ( S6    C6   0   0 )
+// 
+// T67 = ( C7   -S7   0   0 )
+//       (  0     0   1   0 )
+//       ( -S7  -C7   0   0 )
+// 
+//                      T12 = ( C2   -S2   0  a1 )   f1= C1*C2
+//                            (  0     0   1   0 )   f2= S1*C2
+//                            (-S2   -C2   0   0 )   f3=-C1*S2
+//  T01 = ( C1   -S1   0   0 )( f1    f3 -S1  f5 )   f4=-S1*S2
+//        ( S1    C1   0   0 )( f2    f4  C1  f6 )   f5= C1*a1
+//        (  0     0   1   0 )(-S2   -C2   0   0 )   f6= S1*a1
+//  
+//                      T23 = ( C3   -S3   0   0 )   f7=  f1*C3+S1*S3
+//                            (  0     0   1  r3 )   f8=  f2*C3-C1*S3
+//                            (-S3   -C3   0   0 )   f9= -S2*C3
+//  T02 = ( f1    f3 -S1  f5 )( f7   f10  f3 f13 )   f10=-f1*S3+S1*C3
+//        ( f2    f4  C1  f6 )( f8   f11  f4 f14 )   f11=-f2*S3-C1*C3
+//        (-S2   -C2   0   0 )( f9   f12 -C2 f15 )   f12= S2*S3
+//                                                   f13= f3*r3+f5
+//                                                   f14= f4*r3+f6
+//                                                   f15=-C2*r3
+//
+//                      T34 = ( C4   -S4   0   0 )   f16= f7*C4+f3*S4
+//                            (  0     0  -1   0 )   f17= f8*C4+f4*S4
+//                            ( S4    C4   0   0 )   f18= f9*C4-C2*S4
+//  T03 = ( f7   f10  f3 f13 )( f16  f19 f10 f13 )   f19=-f7*S4+f3*C4
+//        ( f8   f11  f4 f14 )( f17  f20 f11 f14 )   f20=-f8*S4+f4*C4
+//        ( f9   f12 -C2 f15 )( f18  f21 f12 f15 )   f21=-f9*S4-C2*C4
+//
+//                      T45 = ( C5   -S5   0   0 )   f22= f16*C5-f10*S5
+//                            (  0     0   1  r5 )   f23= f17*C5-f11*S5
+//                            (-S5   -C5   0   0 )   f24= f18*C5-f12*S5
+//  T04 = ( f16  f19 f10 f13 )( f22  f25 f19 f28 )   f25=-f16*S5-f10*C5
+//        ( f17  f20 f11 f14 )( f23  f26 f20 f29 )   f26=-f17*S5-f11*C5
+//        ( f18  f21 f12 f15 )( f24  f27 f21 f30 )   f27=-f18*S5-f12*C5
+//                                                   f28= f19*r5+f13
+//                                                   f29= f20*r5+f14
+//                                                   f30= f21*r5+f15   
+//  
+//                      T56 = ( C6   -S6   0   0 )   f31= f22*C6+f19*S6
+//                            (  0     0  -1   0 )   f32= f23*C6+f20*S6
+//                            ( S6    C6   0   0 )   f33= f24*C6+f21*S6
+//  T05 = ( f22  f25 f19 f28 )( f31  f34-f25 f28 )   f34=-f22*S6+f19*C6
+//        ( f23  f26 f20 f29 )( f32  f35-f26 f29 )   f35=-f23*S6+f20*C6
+//        ( f24  f27 f21 f30 )( f33  f36-f27 f30 )   f36=-f24*S6+f21*C6
+//  
+//                      T67 = ( C7   -S7   0   0 )   f37= f31*C7+f25*S7
+//                            (  0     0   1   0 )   f38= f32*C7+f26*S7
+//                            ( -S7  -C7   0   0 )   f39= f33*C7+f27*S7
+//  T06 = ( f31  f34-f25 f28 )( f37  f40 f34 f28 )   f40=-f31*S7+f25*C7
+//        ( f32  f35-f26 f29 )( f38  f41 f35 f29 )   f41=-f32*S7+f26*C7
+//        ( f33  f36-f27 f30 )( f39  f42 f36 f30 )   f42=-f33*S7+f27*C7
+//  
+//  Po= O_0O_7 (position of the wrist center relatively to frame R_0) 
+//  P2= O_20_7 (position of the wrist center relatively to frame R_2) = r3 * z3 + r5 * z5 
+//  P3= 0_3O_7 (position of the wrist center relatively to frame R_3) = r5 * z5
+//  
+//  Jac=( z1^Po  z2^P2  z3^P3  z4^P3    0    0   0  )
+//      (   z1     z2     z3     z4    z5   z6  z7  )
+//  
+//  z1^Po = | 0   |f28   |-f29
+//          | 0 ^ |f29 = | f28
+//          | 1   |f30   | 0
+//  P2 = | f43                P2= P1-a1*x1           f43= f28-a1*C1
+//       | f44                                       f44= f29-a1*S1
+//       | f30
+//  z2^P2 = |-S1    |f43   | C1*f30
+//          | C1  ^ |f44 = | S1*f30
+//          | 0     |f30   |-S1*f44-C1*f43
+//  
+//  P3 = | f43-r3*f3  = | f45     P3= P2-r3*z3       f45= f43-r3*f3
+//       | f44-r3*f4    | f46                        f46= f44-r3*f4
+//       | f30+r3*C2    | f47                        f47= f30+r3*C2
+//  z3^P3 = | f3    |f45   | f4*f47+C2*f46
+//          | f4  ^ |f46 = |-C2*f45-f3*f47
+//          |-C2    |f47   | f3*f46-f4*f45
+//
+//
+//  z4^P3 = | f10   |f45 = | f11*f47-f12*f46
+//          | f11 ^ |f46   | f12*f45-f10*f47
+//          | f12   |f47   | f10*f46-f11*f45
+//  
+ */
+
+void gbmPr2_direct(Gb_q7* Q, double a1, double r3, double r5, Gb_th* th07, Gb_jac7 jac7)
+{
+  double C1 = cos (Q->q1);
+  double C2 = cos (Q->q2);
+  double C3 = cos (Q->q3);
+  double C4 = cos (Q->q4);
+  double C5 = cos (Q->q5);
+  double C6 = cos (Q->q6);
+  double C7 = cos (Q->q7);
+  double S1 = sin (Q->q1);
+  double S2 = sin (Q->q2);
+  double S3 = sin (Q->q3);
+  double S4 = sin (Q->q4);
+  double S5 = sin (Q->q5);
+  double S6 = sin (Q->q6);
+  double S7 = sin (Q->q7);
+
+  double f1= C1*C2;
+  double f2= S1*C2;
+  double f3=-C1*S2;
+  double f4=-S1*S2;
+  double f5= C1*a1;
+  double f6= S1*a1;
+  double f7=  f1*C3+S1*S3;
+  double f8=  f2*C3-C1*S3;
+  double f9= -S2*C3;
+  double f10=-f1*S3+S1*C3;
+  double f11=-f2*S3-C1*C3;
+  double f12= S2*S3;
+  double f13= f3*r3+f5;
+  double f14= f4*r3+f6;
+  double f15=-C2*r3;
+  double f16= f7*C4+f3*S4;
+  double f17= f8*C4+f4*S4;
+  double f18= f9*C4-C2*S4;
+  double f19=-f7*S4+f3*C4;
+  double f20=-f8*S4+f4*C4;
+  double f21=-f9*S4-C2*C4;
+  double f22= f16*C5-f10*S5;
+  double f23= f17*C5-f11*S5;
+  double f24= f18*C5-f12*S5;
+  double f25=-f16*S5-f10*C5;
+  double f26=-f17*S5-f11*C5;
+  double f27=-f18*S5-f12*C5;
+  double f28= f19*r5+f13;
+  double f29= f20*r5+f14;
+  double f30= f21*r5+f15;
+  double f31= f22*C6+f19*S6;
+  double f32= f23*C6+f20*S6;
+  double f33= f24*C6+f21*S6;
+  double f34=-f22*S6+f19*C6;
+  double f35=-f23*S6+f20*C6;
+  double f36=-f24*S6+f21*C6;
+  double f37= f31*C7+f25*S7;
+  double f38= f32*C7+f26*S7;
+  double f39= f33*C7+f27*S7;
+  double f40=-f31*S7+f25*C7;
+  double f41=-f32*S7+f26*C7;
+  double f42=-f33*S7+f27*C7;
+  double f43= f28-a1*C1;
+  double f44= f29-a1*S1;
+  double f45= f43-r3*f3;
+  double f46= f44-r3*f4;
+  double f47= f30+r3*C2;
+
+  jac7.c1.x  = -f29;
+  jac7.c1.y  =  f28;
+  jac7.c1.z  =  0;
+  jac7.c1.rx =  0;
+  jac7.c1.ry =  0;
+  jac7.c1.rz =  0;
+  jac7.c2.x  =  C1*f30;
+  jac7.c2.y  =  S1*f30;
+  jac7.c2.z  = -S1*f44-C1*f43;
+  jac7.c2.rx = -S1;
+  jac7.c2.ry =  C1;
+  jac7.c2.rz =  0;
+  jac7.c3.x  =  f4*f47+C2*f46;
+  jac7.c3.y  = -C2*f45-f3*f47;
+  jac7.c3.z  =  f3*f46-f4*f45;
+  jac7.c3.rx =  f3;
+  jac7.c3.ry =  f4;
+  jac7.c3.rz = -C2;
+  jac7.c4.x  =  f11*f47-f12*f46;
+  jac7.c4.y  =  f12*f45-f10*f47;
+  jac7.c4.z  =  f10*f46-f11*f45;
+  jac7.c4.rx =  f10;
+  jac7.c4.ry = 	f11;
+  jac7.c4.rz = 	f12;
+  jac7.c5.x  =  0;
+  jac7.c5.y  =  0;
+  jac7.c5.z  =  0;
+  jac7.c5.rx =  f19;
+  jac7.c5.ry =  f20;
+  jac7.c5.rz =  f21;
+  jac7.c6.x  =  0;
+  jac7.c6.y  =  0;
+  jac7.c6.z  =  0;
+  jac7.c6.rx = -f25
+  jac7.c6.ry = -f26
+  jac7.c6.rz = -f27
+  jac7.c7.x  =  0;
+  jac7.c7.y  =  0;
+  jac7.c7.z  =  0;
+  jac7.c7.rx =  f34;
+  jac7.c7.ry =  f35;
+  jac7.c7.rz =  f36;
+
+  th07->vx.x = f37;
+  th07->vx.y = f38;
+  th07->vx.z = f39;
+  th07->vy.x = f40;
+  th07->vy.y = f41;
+  th07->vy.z = f42;
+  th07->vz.x = f34;
+  th07->vz.y = f35;
+  th07->vz.z = f36;
+  th07->vp.x = f28;
+  th07->vp.y = f29;
+  th07->vp.z = f30;
+}
+
+
 static inline double normalize_angle_positive(double angle)
 {
   return fmod(fmod(angle, 2.0*M_PI) + 2.0*M_PI, 2.0*M_PI);
