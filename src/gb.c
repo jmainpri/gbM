@@ -261,15 +261,20 @@ void Gb_quat_dep(const Gb_quat* q, Gb_dep* dep)
   dep->x = q->x;
   dep->y = q->y;
   dep->z = q->z;
+  double w;
   /* problem if w is 1.0000000000000002 : if (w > 1) dep->a = 0; ... */
   if (q->w >  1.) {
     dep->a = 0;
+    w = 1.0;
   } else if (q->w < -1.) {
     dep->a = M_PI;
+    w = -1.0;
   } else {
     dep->a = acos(q->w) * 2.;
+    w = q->w;
   }
-  sinq = sqrt(1. - q->w * q->w);
+  //sinq = sqrt(1. - q->w * q->w);
+  sinq = sqrt(1. - w * w);
   if (sinq == 0) {
     dep->rx = 0;
     dep->ry = 0;
