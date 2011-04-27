@@ -284,6 +284,12 @@ void Gb_quat_dep(const Gb_quat* q, Gb_dep* dep)
     dep->ry = q->vy / sinq;
     dep->rz = q->vz / sinq;
   }
+  if (dep->a < 0) {
+    dep->a  = -dep->a;
+    dep->rx = -dep->rx;
+    dep->ry = -dep->ry;
+    dep->rz = -dep->rz;
+  }    
 }
 
 
