@@ -22,6 +22,7 @@ extern void kukaLBR_gete1e2e3(double r3, double r5, Gb_q7* eq, int* e1, int* e2,
 extern Gb_statusMGI pr2_mgi_q3_8(Gb_th* th07, Gb_q7* Qp,
                                  double a1, double r3, double r5, Gb_q7 *qMin, Gb_q7 *qMax, 
                                  double epsilon, Gb_q7 qsol[32], int* nbsolution);
+extern void gbmPr2_direct(Gb_q7* Q, double a1, double r3, double r5, Gb_th* th07, Gb_jac7 jac7);
 
 #else /* __STDC__ */
 
@@ -39,6 +40,7 @@ extern void kukaLBR_gete1e2e3(double r3, double r5, Gb_q7* eq, int* e1, int* e2,
 extern Gb_statusMGI pr2_mgi_q3_8(Gb_th* th07, Gb_q7* Qp,
                                  double a1, double r3, double r5, Gb_q7 *qMin, Gb_q7 *qMax, 
                                  double epsilon, Gb_q7 qsol[32], int* nbsolution) ;
+extern void gbmPr2_direct(Gb_q7* Q, double a1, double r3, double r5, Gb_th* th07, Gb_jac7 jac7);
 
 #endif /* __STDC__ */
 #endif /* __CEXTRACT__ */
