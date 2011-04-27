@@ -4,7 +4,7 @@ dnl Copyright (c) 2001-2007,2010 CNRS/LAAS
 dnl
 dnl GPL, since some parts were copied from other configure.in
 dnl 
-AC_INIT(gbM,0.7)
+AC_INIT(gbM,0.8)
 AC_PREREQ(2.59)
 
 m4_include(swigAc.m4)
