@@ -130,7 +130,14 @@ proc Gb_th_set { th args } {
     return $th
 }
 
-	
+proc Gb_th_set_lines { th vx_x vy_x vz_x vp_x  vx_y vy_y vz_y vp_y vx_z vy_z vz_z vp_z } {    
+    Gb_v3_set [$th cget -vx] $vx_x $vx_y $vx_z
+    Gb_v3_set [$th cget -vy] $vy_x $vy_y $vy_z
+    Gb_v3_set [$th cget -vz] $vz_x $vz_y $vz_z
+    Gb_v3_set [$th cget -vp] $vp_x $vp_y $vp_z
+    return $th
+}
+
 proc Gb_th_print { th { lp ""} {quatre ""} } {
     regsub -all {[^ ]} $lp { } ls
     set vx [$th cget -vx]
