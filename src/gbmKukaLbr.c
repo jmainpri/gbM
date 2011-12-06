@@ -274,7 +274,7 @@ void kukaLBR_mgd(Gb_q7* Q, double r3, double r5, Gb_th* th07)
 //                                              | r5*f16
 //  
  */
-void kukaLBR_direct(Gb_q7* Q, double r3, double r5, Gb_th* th07, Gb_jac7 jac7)
+void kukaLBR_direct(Gb_q7* Q, double r3, double r5, Gb_th* th07, Gb_jac7* jac7)
 {
   double C1 = cos (Q->q1);
   double C2 = cos (Q->q2);
@@ -332,48 +332,48 @@ void kukaLBR_direct(Gb_q7* Q, double r3, double r5, Gb_th* th07, Gb_jac7 jac7)
   double f39 =-f30*S7+f24*C7;
   double f40 =-f31*S7+f25*C7;
 
-  jac7.c1.x  = -f27;
-  jac7.c1.y  = f26;
-  jac7.c1.z  = 0;
-  jac7.c1.rx = 0;
-  jac7.c1.ry = 0;
-  jac7.c1.rz = 1;
-  jac7.c2.x  = -C1*f28;
-  jac7.c2.y  = -S1*f28;
-  jac7.c2.z  = S1*f27+C1*f26;
-  jac7.c2.rx = S1;
-  jac7.c2.ry = -C1;
-  jac7.c2.rz = 0;
-  jac7.c3.x  = r5*(-f4*f19+C2*f18);
-  jac7.c3.y  = r5*(-C2*f17+f3*f19);
-  jac7.c3.z  = r5*(-f3*f18+f4*f17);
-  jac7.c3.rx = f3;
-  jac7.c3.ry = f4;
-  jac7.c3.rz = C2;
-  jac7.c4.x  = r5 * f14;
-  jac7.c4.y  = r5 * f15;
-  jac7.c4.z  = r5 * f16;
-  jac7.c4.rx = f8;
-  jac7.c4.ry = f9;
-  jac7.c4.rz = f10;
-  jac7.c5.x  = 0;
-  jac7.c5.y  = 0;
-  jac7.c5.z  = 0;
-  jac7.c5.rx = -f17;
-  jac7.c5.ry = -f18;
-  jac7.c5.rz = -f19;
-  jac7.c6.x  = 0;
-  jac7.c6.y  = 0;
-  jac7.c6.z  = 0;
-  jac7.c6.rx = -f23;
-  jac7.c6.ry = -f24;
-  jac7.c6.rz = -f25;
-  jac7.c7.x  = 0;
-  jac7.c7.y  = 0;
-  jac7.c7.z  = 0;
-  jac7.c7.rx = f32;
-  jac7.c7.ry = f33;
-  jac7.c7.rz = f34;
+  jac7->c1.x  = -f27;
+  jac7->c1.y  = f26;
+  jac7->c1.z  = 0;
+  jac7->c1.rx = 0;
+  jac7->c1.ry = 0;
+  jac7->c1.rz = 1;
+  jac7->c2.x  = -C1*f28;
+  jac7->c2.y  = -S1*f28;
+  jac7->c2.z  = S1*f27+C1*f26;
+  jac7->c2.rx = S1;
+  jac7->c2.ry = -C1;
+  jac7->c2.rz = 0;
+  jac7->c3.x  = r5*(-f4*f19+C2*f18);
+  jac7->c3.y  = r5*(-C2*f17+f3*f19);
+  jac7->c3.z  = r5*(-f3*f18+f4*f17);
+  jac7->c3.rx = f3;
+  jac7->c3.ry = f4;
+  jac7->c3.rz = C2;
+  jac7->c4.x  = r5 * f14;
+  jac7->c4.y  = r5 * f15;
+  jac7->c4.z  = r5 * f16;
+  jac7->c4.rx = f8;
+  jac7->c4.ry = f9;
+  jac7->c4.rz = f10;
+  jac7->c5.x  = 0;
+  jac7->c5.y  = 0;
+  jac7->c5.z  = 0;
+  jac7->c5.rx = -f17;
+  jac7->c5.ry = -f18;
+  jac7->c5.rz = -f19;
+  jac7->c6.x  = 0;
+  jac7->c6.y  = 0;
+  jac7->c6.z  = 0;
+  jac7->c6.rx = -f23;
+  jac7->c6.ry = -f24;
+  jac7->c6.rz = -f25;
+  jac7->c7.x  = 0;
+  jac7->c7.y  = 0;
+  jac7->c7.z  = 0;
+  jac7->c7.rx = f32;
+  jac7->c7.ry = f33;
+  jac7->c7.rz = f34;
 
   th07->vx.x = f35;
   th07->vx.y = f36;
@@ -387,6 +387,100 @@ void kukaLBR_direct(Gb_q7* Q, double r3, double r5, Gb_th* th07, Gb_jac7 jac7)
   th07->vp.x = f26;
   th07->vp.y = f27;
   th07->vp.z = f28;
+}
+
+
+void kukaLBR_diff_direct(Gb_q7* Q, double r3, double r5, Gb_jac7* jac7)
+{
+  double C1 = cos (Q->q1);
+  double C2 = cos (Q->q2);
+  double C3 = cos (Q->q3);
+  double C4 = cos (Q->q4);
+  double C5 = cos (Q->q5);
+  double C6 = cos (Q->q6);
+  //  double C7 = cos (Q->q7);
+  double S1 = sin (Q->q1);
+  double S2 = sin (Q->q2);
+  double S3 = sin (Q->q3);
+  double S4 = sin (Q->q4);
+  double S5 = sin (Q->q5);
+  double S6 = sin (Q->q6);
+  //  double S7 = sin (Q->q7);
+
+  double  f1 = C1*C2;
+  double  f2 = S1*C2;
+  double  f3 =-C1*S2;
+  double  f4 =-S1*S2;
+  double  f5 = f1*C3-S1*S3;
+  double  f6 = f2*C3+C1*S3;
+  double  f7 = S2*C3;
+  double  f8 =-f1*S3-S1*C3;
+  double  f9 =-f2*S3+C1*C3;
+  double f10 =-S2*S3;
+  double f11 = f3*r3;
+  double f12 = f4*r3;
+  double f13 = C2*r3;
+  double f14 = f5*C4-f3*S4;
+  double f15 = f6*C4-f4*S4;
+  double f16 = f7*C4-C2*S4;
+  double f17 =-f5*S4-f3*C4;
+  double f18 =-f6*S4-f4*C4;
+  double f19 =-f7*S4-C2*C4;
+  double f20 = f14*C5+f8*S5;
+  double f21 = f15*C5+f9*S5;
+  double f22 = f16*C5+f10*S5;
+  double f23 =-f14*S5+f8*C5;
+  double f24 =-f15*S5+f9*C5;
+  double f25 =-f16*S5+f10*C5;
+  double f26 =-f17*r5+f11;
+  double f27 =-f18*r5+f12;
+  double f28 =-f19*r5+f13;
+  double f32 =-f20*S6-f17*C6;
+  double f33 =-f21*S6-f18*C6;
+  double f34 =-f22*S6-f19*C6;
+
+  jac7->c1.x  = -f27;
+  jac7->c1.y  = f26;
+  jac7->c1.z  = 0;
+  jac7->c1.rx = 0;
+  jac7->c1.ry = 0;
+  jac7->c1.rz = 1;
+  jac7->c2.x  = -C1*f28;
+  jac7->c2.y  = -S1*f28;
+  jac7->c2.z  = S1*f27+C1*f26;
+  jac7->c2.rx = S1;
+  jac7->c2.ry = -C1;
+  jac7->c2.rz = 0;
+  jac7->c3.x  = r5*(-f4*f19+C2*f18);
+  jac7->c3.y  = r5*(-C2*f17+f3*f19);
+  jac7->c3.z  = r5*(-f3*f18+f4*f17);
+  jac7->c3.rx = f3;
+  jac7->c3.ry = f4;
+  jac7->c3.rz = C2;
+  jac7->c4.x  = r5 * f14;
+  jac7->c4.y  = r5 * f15;
+  jac7->c4.z  = r5 * f16;
+  jac7->c4.rx = f8;
+  jac7->c4.ry = f9;
+  jac7->c4.rz = f10;
+  jac7->c5.x  = 0;
+  jac7->c5.y  = 0;
+  jac7->c5.z  = 0;
+  jac7->c5.rx = -f17;
+  jac7->c5.ry = -f18;
+  jac7->c5.rz = -f19;
+  jac7->c6.x  = 0;
+  jac7->c6.y  = 0;
+  jac7->c6.z  = 0;
+  jac7->c6.rx = -f23;
+  jac7->c6.ry = -f24;
+  jac7->c6.rz = -f25;
+  jac7->c7.x  = 0;
+  jac7->c7.y  = 0;
+  jac7->c7.z  = 0;
+  jac7->c7.rx = f32;
+  jac7->c7.ry = f33;
+  jac7->c7.rz = f34;
 }
 
 /*
@@ -559,6 +653,31 @@ Gb_statusMGI kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   q->q7 = atan2(S7, C7);
   return returnValue;
 }
+
+//  jointCostCenterFunction : return a cost 
+//     0 if q is in the middle between min and max
+//     -1 if q is on the bound min, 1 for max
+//     1.1 if q is out of bounds
+double jointCostCenterFunction(double min, double max, double q)
+{
+  double res;
+  double dmin = q - min;
+  double dmax = max - q;
+  double sign;
+  double d;
+  
+  if (q < min || q > max) return 1.1;
+  if ( dmin < dmax) {
+    d = dmin;
+    sign = -1;
+  } else {
+    d = dmax;
+    sign = 1;
+  }
+  d /= ( (max - min) / 2 );  //   -1 <= d <= 1
+  return sign * d * d;
+}
+
 
 Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
 			     double epsilon, int e1, int e2, int e3,
@@ -784,4 +903,101 @@ int main(int argc, char** argv)
   kukaLBR_mgd(&qs, r3, r5, &thp);   Gb_th_print(&thp, "th07");
   return 0;
 }*/
+
+/// /*  kukaLBR_mgi_q3_e_opt() : inverse kinematic for Kuka LBR arm 
+///  *  q3 is the redundant join, configuration e1, e2, e3 is defined
+///  *   return an optimum q3 position in vector q position
+///  *  The optimum is based on join limit and distance to obstacle (coldman/pqp model)
+///  */
+///Gb_statusMGI kukaLBR_mgi_q3opt_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
+///			     double epsilon, int e1, int e2, int e3,
+///			     Gb_q7* q) 
+///{
+///  Gb_q7 qi; // solution without moving q3
+///  Gb_jac7 jac7;
+///
+///  world.earlyCollisionTest(0.0);
+///  
+///  th07 define the but;
+///  compute distance at but ;
+///  Gb_statusMGI status = kukaLBR_mgi_q_e(th07, Qp, r3, r5, epsilon, e1, e2, e3, &qi);
+///  // if status...
+///  kukaLBR_diff_direct(&qi, r3, r5, &jac7);
+///  Compute_kernel_null_space(&jac7)  -->  ns;
+///  c1 = jointCostCenterFunction(min??, max??, qi.q1);
+///  c2 = jointCostCenterFunction(min??, max??, qi.q2);
+///  c3 = jointCostCenterFunction(min??, max??, qi.q3);
+///  c4 = jointCostCenterFunction(min??, max??, qi.q4);
+///  c5 = jointCostCenterFunction(min??, max??, qi.q5);
+///  c6 = jointCostCenterFunction(min??, max??, qi.q6);
+///  c7 = jointCostCenterFunction(min??, max??, qi.q7);
+///  delta_q3 = gain * ns[3-1] 
+///    * (c1/ns[1-1] + c1/ns[3-1] + c1/ns[4-1] + c1/ns[5-1] + c1/ns[6-1] + c1/ns[7-1]);
+///  qplus = qi + delta_q3 + M_PI/5; // choose a good value...
+///  
+///  idem +deltaQ3;
+///  
+///  // plus simple?   int coldmanSetRobotQi(int dof, double value, double vel, double acc)
+///  for (int i = 0; i < SDI_F->motion.size; i++) {
+///    if (coldmanSetRobotQi(i, SDI_F->motion.q[i],
+///			  SDI_F->motion.vq[i],
+///			  SDI_F->motion.aq[i]) != 0) {
+///      printf("ERROR coldmanSetRobotQi on axis %d\n",i);
+///    }
+///  }
+///  collision = coldmanPredictCollision(double time);
+///  
+///  idem -deltaQ3;
+///  choose best;
+///}
+
+ /*  kukaLBR_mgi_q3midle_e() : inverse kinematic for Kuka LBR arm 
+  *  q3 is the redundant join, configuration e1, e2, e3 is defined
+  *   return an optimum q3 position in vector q position
+  *  The optimum maximize the distance to joint bounds.
+  */
+Gb_statusMGI kukaLBR_mgi_q3midle_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
+				   Gb_q7* QMax, Gb_q7* QMin, double epsilon,
+				   int e1, int e2, int e3,
+				   Gb_q7* q) 
+{
+  Gb_q7 qi; // solution without moving q3
+  Gb_q7 qOpt; // optimum solution
+  Gb_jac7 jac7;
+  double gain = 0.1;
+
+  Gb_statusMGI status = kukaLBR_mgi_q_e(th07, Qp, r3, r5, epsilon, e1, e2, e3, &qi);
+  // if status...
+  kukaLBR_diff_direct(&qi, r3, r5, &jac7);
+  double c1 = jointCostCenterFunction(QMin->q1, QMax->q1, qi.q1);
+  double c2 = jointCostCenterFunction(QMin->q2, QMax->q2, qi.q2);
+  double c3 = jointCostCenterFunction(QMin->q3, QMax->q3, qi.q3);
+  double c4 = jointCostCenterFunction(QMin->q4, QMax->q4, qi.q4);
+  double c5 = jointCostCenterFunction(QMin->q5, QMax->q5, qi.q5);
+  double c6 = jointCostCenterFunction(QMin->q6, QMax->q6, qi.q6);
+  double c7 = jointCostCenterFunction(QMin->q7, QMax->q7, qi.q7);
+  double c = c1 + c2 + c3 + c4 + c5 + c6 + c7;
+  double ex  = - jac7.c3.x  * ( jac7.c1.x  * c1 + jac7.c2.x  * c2 + jac7.c4.x  * c4 + jac7.c5.x  * c5 + jac7.c6.x  * c6 + jac7.c7.x  * c7 );
+  double ey  = - jac7.c3.y  * ( jac7.c1.y  * c1 + jac7.c2.y  * c2 + jac7.c4.y  * c4 + jac7.c5.y  * c5 + jac7.c6.y  * c6 + jac7.c7.y  * c7 );
+  double ez  = - jac7.c3.z  * ( jac7.c1.z  * c1 + jac7.c2.z  * c2 + jac7.c4.z  * c4 + jac7.c5.z  * c5 + jac7.c6.z  * c6 + jac7.c7.z  * c7 );
+  double erx = - jac7.c3.rx * ( jac7.c1.rx * c1 + jac7.c2.rx * c2 + jac7.c4.rx * c4 + jac7.c5.rx * c5 + jac7.c6.rx * c6 + jac7.c7.rx * c7 );
+  double ery = - jac7.c3.ry * ( jac7.c1.ry * c1 + jac7.c2.ry * c2 + jac7.c4.ry * c4 + jac7.c5.ry * c5 + jac7.c6.ry * c6 + jac7.c7.ry * c7 );
+  double erz = - jac7.c3.rz * ( jac7.c1.rz * c1 + jac7.c2.rz * c2 + jac7.c4.rz * c4 + jac7.c5.rz * c5 + jac7.c6.rz * c6 + jac7.c7.rz * c7 );
+  double delta_q3 = gain * ( c3 + ex + ey + ez + erx +ery +erz ) ;
+  //  verifier que q3 est à l'intérieur de ses bornes
+  Qp->q3 += delta_q3;
+  if (Qp->q3 < QMin->q3) { Qp->q3 = QMin->q3; }
+  if (Qp->q3 > QMax->q3) { Qp->q3 = QMax->q3; }
+  status  = kukaLBR_mgi_q_e(th07, Qp, r3, r5, epsilon, e1, e2, e3, &qOpt);
+  c1 = jointCostCenterFunction(QMin->q1, QMax->q1, qOpt.q1);
+  c2 = jointCostCenterFunction(QMin->q2, QMax->q2, qOpt.q2);
+  c3 = jointCostCenterFunction(QMin->q3, QMax->q3, qOpt.q3);
+  c4 = jointCostCenterFunction(QMin->q4, QMax->q4, qOpt.q4);
+  c5 = jointCostCenterFunction(QMin->q5, QMax->q5, qOpt.q5);
+  c6 = jointCostCenterFunction(QMin->q6, QMax->q6, qOpt.q6);
+  c7 = jointCostCenterFunction(QMin->q7, QMax->q7, qOpt.q7);
+  double cOpt = c1 + c2 + c3 + c4 + c5 + c6 + c7;
+  printf("kukaLBR_mgi_q3midle_e: c= %g  cOpt= %g\n", c, cOpt);
+}
+
 
