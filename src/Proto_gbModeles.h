@@ -23,7 +23,16 @@ extern Gb_statusMGI pr2_mgi_q3_8(Gb_th* th07, Gb_q7* Qp,
                                  double a1, double r3, double r5, Gb_q7 *qMin, Gb_q7 *qMax, 
                                  double epsilon, Gb_q7 qsol[32], int* nbsolution);
 extern void gbmPr2_direct(Gb_q7* Q, double a1, double r3, double r5, Gb_th* th07, Gb_jac7 jac7);
-
+extern double jointCostCenterFunction(double min, double max, double q);
+extern Gb_statusMGI kukaLBR_mgi_q3midle_e(Gb_th* th07, // Cartesian position to reach
+					  Gb_q7* Qp,   // current Q configuration -- Qp->q3 input to improve
+					  double r3, double r5,  // robot parameters
+					  Gb_q7* QMax, Gb_q7* QMin, // minimal and maximal bounds of Qp
+					  double gain, // gain of the loop
+					  int nbMaxLoop,  // maximum number of loop
+					  double epsilon, // limit to define singularities
+					  int e1, int e2, int e3,  // to specify the type of solution
+					  Gb_q7* qs); // the solution
 #else /* __STDC__ */
 
 extern char* Gb_statusMGI_s (/* Gb_statusMGI u */);
@@ -41,6 +50,15 @@ extern Gb_statusMGI pr2_mgi_q3_8(Gb_th* th07, Gb_q7* Qp,
                                  double a1, double r3, double r5, Gb_q7 *qMin, Gb_q7 *qMax, 
                                  double epsilon, Gb_q7 qsol[32], int* nbsolution) ;
 extern void gbmPr2_direct(Gb_q7* Q, double a1, double r3, double r5, Gb_th* th07, Gb_jac7 jac7);
-
+extern double jointCostCenterFunction(/*double min, double max, double q*/);
+extern Gb_statusMGI kukaLBR_mgi_q3midle_e(/*Gb_th* th07, // Cartesian position to reach
+					  Gb_q7* Qp,   // current Q configuration -- Qp->q3 input to improve
+					  double r3, double r5,  // robot parameters
+					  Gb_q7* QMax, Gb_q7* QMin, // minimal and maximal bounds of Qp
+					  double gain, // gain of the loop
+					  int nbMaxLoop,  // maximum number of loop
+					  double epsilon, // limit to define singularities
+					  int e1, int e2, int e3,  // to specify the type of solution
+					  Gb_q7* qs*/); // the solution
 #endif /* __STDC__ */
 #endif /* __CEXTRACT__ */

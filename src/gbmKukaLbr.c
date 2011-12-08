@@ -654,30 +654,6 @@ Gb_statusMGI kukaLBR_mgi_q3(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
   return returnValue;
 }
 
-//  jointCostCenterFunction : return a cost 
-//     0 if q is in the middle between min and max
-//     -1 if q is on the bound min, 1 for max
-//     1.1 if q is out of bounds
-double jointCostCenterFunction(double min, double max, double q)
-{
-  double res;
-  double dmin = q - min;
-  double dmax = max - q;
-  double sign;
-  double d;
-  
-  if (q < min || q > max) return 1.1;
-  if ( dmin < dmax) {
-    d = dmin;
-    sign = -1;
-  } else {
-    d = dmax;
-    sign = 1;
-  }
-  d /= ( (max - min) / 2 );  //   -1 <= d <= 1
-  return sign * d * d;
-}
-
 
 Gb_statusMGI kukaLBR_mgi_q_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
 			     double epsilon, int e1, int e2, int e3,
@@ -904,6 +880,31 @@ int main(int argc, char** argv)
   return 0;
 }*/
 
+//  jointCostCenterFunction : return a cost 
+//     0 if q is in the middle between min and max
+//     -1 if q is on the bound min, 1 for max
+//     1.1 if q is out of bounds
+double jointCostCenterFunction(double min, double max, double q)
+{
+  double dmin = q - min;
+  double dmax = max - q;
+  double sign;
+  double d;
+  
+  if (q < min || q > max) return 1.1;
+  if ( dmin < dmax) {
+    d = dmin;
+    sign = -1.;
+  } else {
+    d = dmax;
+    sign = 1.;
+  }
+  d /= ( (max - min) / 2 );  //   -1 <= d <= 1
+  d = 1 - d;
+  return sign * d * d;
+  // return sign * d * d * d * d;  more accuracy but longer
+}
+
 /// /*  kukaLBR_mgi_q3_e_opt() : inverse kinematic for Kuka LBR arm 
 ///  *  q3 is the redundant join, configuration e1, e2, e3 is defined
 ///  *   return an optimum q3 position in vector q position
@@ -953,51 +954,195 @@ int main(int argc, char** argv)
 
  /*  kukaLBR_mgi_q3midle_e() : inverse kinematic for Kuka LBR arm 
   *  q3 is the redundant join, configuration e1, e2, e3 is defined
-  *   return an optimum q3 position in vector q position
+  *   return an optimum q3 position in vector qs position
   *  The optimum maximize the distance to joint bounds.
+  * 
   */
-Gb_statusMGI kukaLBR_mgi_q3midle_e(Gb_th* th07, Gb_q7* Qp, double r3, double r5,
-				   Gb_q7* QMax, Gb_q7* QMin, double epsilon,
-				   int e1, int e2, int e3,
-				   Gb_q7* q) 
+Gb_statusMGI kukaLBR_mgi_q3midle_e(Gb_th* th07, // Cartesian position to reach
+				   Gb_q7* Qp,   // current Q configuration -- Qp->q3 input to improve
+				   double r3, double r5,  // robot parameters
+				   Gb_q7* QMax, Gb_q7* QMin, // minimal and maximal bounds of Qp
+				   double gain, // gain of the loop
+				   int nbMaxLoop,  // maximum number of loop
+				   double epsilon, // limit to define singularities
+				   int e1, int e2, int e3,  // to specify the type of solution
+				   Gb_q7* qs) // the solution
 {
-  Gb_q7 qi; // solution without moving q3
   Gb_q7 qOpt; // optimum solution
   Gb_jac7 jac7;
-  double gain = 0.1;
+  //  double gain = 0.1;
+  double c1;
+  double c2;
+  double c3;
+  double c4;
+  double c5;
+  double c6;
+  double c7;
+  double c;
+  double cOpt;
+  double ex;
+  double ey;
+  double ez;
+  double erx;
+  double ery;
+  double erz;
+  double delta_q3;
+  int iLoop;
+  //  int nbMaxLoop = 100;
+  Gb_q7 Qp3;
+  Qp3.q1 = Qp->q1;
+  Qp3.q2 = Qp->q2;
+  Qp3.q3 = Qp->q3;
+  Qp3.q4 = Qp->q4;
+  Qp3.q5 = Qp->q5;
+  Qp3.q6 = Qp->q6;
+  Qp3.q7 = Qp->q7;
+  Gb_statusMGI statusN;
 
-  Gb_statusMGI status = kukaLBR_mgi_q_e(th07, Qp, r3, r5, epsilon, e1, e2, e3, &qi);
+  Gb_statusMGI status = kukaLBR_mgi_q_e(th07, Qp, r3, r5, epsilon, e1, e2, e3, qs);
   // if status...
-  kukaLBR_diff_direct(&qi, r3, r5, &jac7);
-  double c1 = jointCostCenterFunction(QMin->q1, QMax->q1, qi.q1);
-  double c2 = jointCostCenterFunction(QMin->q2, QMax->q2, qi.q2);
-  double c3 = jointCostCenterFunction(QMin->q3, QMax->q3, qi.q3);
-  double c4 = jointCostCenterFunction(QMin->q4, QMax->q4, qi.q4);
-  double c5 = jointCostCenterFunction(QMin->q5, QMax->q5, qi.q5);
-  double c6 = jointCostCenterFunction(QMin->q6, QMax->q6, qi.q6);
-  double c7 = jointCostCenterFunction(QMin->q7, QMax->q7, qi.q7);
-  double c = c1 + c2 + c3 + c4 + c5 + c6 + c7;
-  double ex  = - jac7.c3.x  * ( jac7.c1.x  * c1 + jac7.c2.x  * c2 + jac7.c4.x  * c4 + jac7.c5.x  * c5 + jac7.c6.x  * c6 + jac7.c7.x  * c7 );
-  double ey  = - jac7.c3.y  * ( jac7.c1.y  * c1 + jac7.c2.y  * c2 + jac7.c4.y  * c4 + jac7.c5.y  * c5 + jac7.c6.y  * c6 + jac7.c7.y  * c7 );
-  double ez  = - jac7.c3.z  * ( jac7.c1.z  * c1 + jac7.c2.z  * c2 + jac7.c4.z  * c4 + jac7.c5.z  * c5 + jac7.c6.z  * c6 + jac7.c7.z  * c7 );
-  double erx = - jac7.c3.rx * ( jac7.c1.rx * c1 + jac7.c2.rx * c2 + jac7.c4.rx * c4 + jac7.c5.rx * c5 + jac7.c6.rx * c6 + jac7.c7.rx * c7 );
-  double ery = - jac7.c3.ry * ( jac7.c1.ry * c1 + jac7.c2.ry * c2 + jac7.c4.ry * c4 + jac7.c5.ry * c5 + jac7.c6.ry * c6 + jac7.c7.ry * c7 );
-  double erz = - jac7.c3.rz * ( jac7.c1.rz * c1 + jac7.c2.rz * c2 + jac7.c4.rz * c4 + jac7.c5.rz * c5 + jac7.c6.rz * c6 + jac7.c7.rz * c7 );
-  double delta_q3 = gain * ( c3 + ex + ey + ez + erx +ery +erz ) ;
-  //  verifier que q3 est à l'intérieur de ses bornes
-  Qp->q3 += delta_q3;
-  if (Qp->q3 < QMin->q3) { Qp->q3 = QMin->q3; }
-  if (Qp->q3 > QMax->q3) { Qp->q3 = QMax->q3; }
-  status  = kukaLBR_mgi_q_e(th07, Qp, r3, r5, epsilon, e1, e2, e3, &qOpt);
-  c1 = jointCostCenterFunction(QMin->q1, QMax->q1, qOpt.q1);
-  c2 = jointCostCenterFunction(QMin->q2, QMax->q2, qOpt.q2);
-  c3 = jointCostCenterFunction(QMin->q3, QMax->q3, qOpt.q3);
-  c4 = jointCostCenterFunction(QMin->q4, QMax->q4, qOpt.q4);
-  c5 = jointCostCenterFunction(QMin->q5, QMax->q5, qOpt.q5);
-  c6 = jointCostCenterFunction(QMin->q6, QMax->q6, qOpt.q6);
-  c7 = jointCostCenterFunction(QMin->q7, QMax->q7, qOpt.q7);
-  double cOpt = c1 + c2 + c3 + c4 + c5 + c6 + c7;
-  printf("kukaLBR_mgi_q3midle_e: c= %g  cOpt= %g\n", c, cOpt);
+  for (iLoop=0; iLoop<nbMaxLoop; iLoop++) {
+    kukaLBR_diff_direct(qs, r3, r5, &jac7);
+    c1 = jointCostCenterFunction(QMin->q1, QMax->q1, qs->q1);
+    c2 = jointCostCenterFunction(QMin->q2, QMax->q2, qs->q2);
+    c3 = jointCostCenterFunction(QMin->q3, QMax->q3, qs->q3);
+    c4 = jointCostCenterFunction(QMin->q4, QMax->q4, qs->q4);
+    c5 = jointCostCenterFunction(QMin->q5, QMax->q5, qs->q5);
+    c6 = jointCostCenterFunction(QMin->q6, QMax->q6, qs->q6);
+    c7 = jointCostCenterFunction(QMin->q7, QMax->q7, qs->q7);
+    c = sqrt(c1*c1 + c2*c2 + c3*c3 + c4*c4 + c5*c5 + c6*c6 + c7*c7);
+    //    printf("     c1...c7= %g %g %g   %g %g %g   %g\n", c1, c2, c3, c4, c5, c6, c7);
+    ex  = jac7.c3.x  * ( jac7.c1.x  * c1 + jac7.c2.x  * c2 + jac7.c4.x  * c4 + jac7.c5.x  * c5 + jac7.c6.x  * c6 + jac7.c7.x  * c7 );
+    ey  = jac7.c3.y  * ( jac7.c1.y  * c1 + jac7.c2.y  * c2 + jac7.c4.y  * c4 + jac7.c5.y  * c5 + jac7.c6.y  * c6 + jac7.c7.y  * c7 );
+    ez  = jac7.c3.z  * ( jac7.c1.z  * c1 + jac7.c2.z  * c2 + jac7.c4.z  * c4 + jac7.c5.z  * c5 + jac7.c6.z  * c6 + jac7.c7.z  * c7 );
+    erx = jac7.c3.rx * ( jac7.c1.rx * c1 + jac7.c2.rx * c2 + jac7.c4.rx * c4 + jac7.c5.rx * c5 + jac7.c6.rx * c6 + jac7.c7.rx * c7 );
+    ery = jac7.c3.ry * ( jac7.c1.ry * c1 + jac7.c2.ry * c2 + jac7.c4.ry * c4 + jac7.c5.ry * c5 + jac7.c6.ry * c6 + jac7.c7.ry * c7 );
+    erz = jac7.c3.rz * ( jac7.c1.rz * c1 + jac7.c2.rz * c2 + jac7.c4.rz * c4 + jac7.c5.rz * c5 + jac7.c6.rz * c6 + jac7.c7.rz * c7 );
+    delta_q3 = gain * ( -c3 + ex + ey + ez + erx + ery + erz ) ;
+    //printf("delta_q3: %g   %g %g %g    %g %g %g\n",
+    //       -c3, ex, ey, ez, erx, ery, erz) ;
+    //  verifier que q3 est à l'intérieur de ses bornes
+    Qp3.q3 += delta_q3;
+    if (Qp3.q3 < QMin->q3) { Qp3.q3 = QMin->q3; }
+    if (Qp3.q3 > QMax->q3) { Qp3.q3 = QMax->q3; }
+    statusN  = kukaLBR_mgi_q_e(th07, &Qp3, r3, r5, epsilon, e1, e2, e3, &qOpt);
+    c1 = jointCostCenterFunction(QMin->q1, QMax->q1, qOpt.q1);
+    c2 = jointCostCenterFunction(QMin->q2, QMax->q2, qOpt.q2);
+    c3 = jointCostCenterFunction(QMin->q3, QMax->q3, qOpt.q3);
+    c4 = jointCostCenterFunction(QMin->q4, QMax->q4, qOpt.q4);
+    c5 = jointCostCenterFunction(QMin->q5, QMax->q5, qOpt.q5);
+    c6 = jointCostCenterFunction(QMin->q6, QMax->q6, qOpt.q6);
+    c7 = jointCostCenterFunction(QMin->q7, QMax->q7, qOpt.q7);
+    cOpt = sqrt(c1*c1 + c2*c2 + c3*c3 + c4*c4 + c5*c5 + c6*c6 + c7*c7);
+    //    printf("Opt: c1...c7= %g %g %g   %g %g %g   %g\n", c1, c2, c3, c4, c5, c6, c7);
+    //printf("kukaLBR_mgi_q3midle_e: c= %g  cOpt= %g   q3= %g\n", c, cOpt, Qp3.q3);
+    if (c <= cOpt) break;
+    status = statusN;
+    qs->q1 = qOpt.q1;
+    qs->q2 = qOpt.q2;
+    qs->q3 = qOpt.q3;
+    qs->q4 = qOpt.q4;
+    qs->q5 = qOpt.q5;
+    qs->q6 = qOpt.q6;
+    qs->q7 = qOpt.q7;
+  }
+  printf("kukaLBR_mgi_q3midle_e:  iLoop= %d\n", iLoop);
+  return status;
 }
 
+/*
+//test.c
 
+#include "math.h"
+#include <stdio.h>
+#include "gb.h"
+
+int testImproveOneQ(Gb_q7 *qe, Gb_q7 *qs);
+
+int main(int argc, char** argv) 
+{
+  Gb_q7 q, qs;
+  Gb_statusMGI status;
+
+  //  q.q1 = M_PI / 7.;
+  q.q1 = 0.02;
+  q.q2 =-M_PI / 10.;
+  q.q3 = 0.29;
+  q.q4 = -0.2;
+  q.q5 = 2.9;
+  q.q6 = M_PI / 12.;
+  q.q7 =-M_PI / 14.;
+  testImproveOneQ(&q, &qs);
+
+  return 0;
+}
+
+int testImproveOneQ(Gb_q7 *qe, Gb_q7 *qs)
+{
+  double r3 = 0.4;
+  double r5 = 0.39;
+  Gb_th th07;
+  Gb_th thp;
+  double epsilon = 1e-7;
+  Gb_q7 QMax;
+  Gb_q7 QMin;
+  double c1;
+  double c2;
+  double c3;
+  double c4;
+  double c5;
+  double c6;
+  double c7;
+  int e1, e2, e3;
+  Gb_statusMGI status;
+
+  QMin.q1 = - 2.967059729;
+  QMin.q2 = - 2.094395103;
+  QMin.q3 = - 2.967059729;
+  QMin.q4 = - 2.094395103;
+  QMin.q5 = - 2.967059729;
+  QMin.q6 = - 2.268928028;
+  QMin.q7 = - 2.967059729;
+  QMax.q1 = + 2.967059729;
+  QMax.q2 = + 2.094395103;
+  QMax.q3 = + 2.967059729;
+  QMax.q4 = + 2.094395103;
+  QMax.q5 = + 2.967059729;
+  QMax.q6 = + 2.268928028;
+  QMax.q7 = + 2.967059729;
+
+  kukaLBR_mgd(qe, r3, r5, &th07);
+  Gb_th_print(&th07, "th07");
+  kukaLBR_gete1e2e3(r3, r5, qe, &e1, &e2, &e3);
+
+  status = kukaLBR_mgi_q3midle_e(&th07, qe, r3, r5, &QMax, &QMin, 0.1, 200,
+				 epsilon, e1, e2, e3, qs);
+  kukaLBR_mgd(qs, r3, r5, &thp);   Gb_th_print(&thp, "th07");
+  printf("\n");
+  
+  c1 = jointCostCenterFunction(QMin.q1, QMax.q1, qe->q1);
+  c2 = jointCostCenterFunction(QMin.q2, QMax.q2, qe->q2);
+  c3 = jointCostCenterFunction(QMin.q3, QMax.q3, qe->q3);
+  c4 = jointCostCenterFunction(QMin.q4, QMax.q4, qe->q4);
+  c5 = jointCostCenterFunction(QMin.q5, QMax.q5, qe->q5);
+  c6 = jointCostCenterFunction(QMin.q6, QMax.q6, qe->q6);
+  c7 = jointCostCenterFunction(QMin.q7, QMax.q7, qe->q7);
+  printf("q: c1...c7= %g %g %g  %g %g %g  %g\n",
+	 c1, c2, c3, c4, c5, c6, c7);
+  c1 = jointCostCenterFunction(QMin.q1, QMax.q1, qs->q1);
+  c2 = jointCostCenterFunction(QMin.q2, QMax.q2, qs->q2);
+  c3 = jointCostCenterFunction(QMin.q3, QMax.q3, qs->q3);
+  c4 = jointCostCenterFunction(QMin.q4, QMax.q4, qs->q4);
+  c5 = jointCostCenterFunction(QMin.q5, QMax.q5, qs->q5);
+  c6 = jointCostCenterFunction(QMin.q6, QMax.q6, qs->q6);
+  c7 = jointCostCenterFunction(QMin.q7, QMax.q7, qs->q7);
+  printf("qs: c1...c7= %g %g %g  %g %g %g  %g\n",
+	 c1, c2, c3, c4, c5, c6, c7);
+  printf("qe= %8g %8g %8g  %8g %8g %8g  %8g\n", 
+	 qe->q1, qe->q2, qe->q3, qe->q4, qe->q5, qe->q6, qe->q7);
+  printf("qs= %8g %8g %8g  %8g %8g %8g  %8g\n", 
+	 qs->q1, qs->q2, qs->q3, qs->q4, qs->q5, qs->q6, qs->q7);
+
+  return 0;
+}
+*/
