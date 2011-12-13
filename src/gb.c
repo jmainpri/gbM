@@ -976,6 +976,12 @@ void Gb_q6_print(const Gb_q6* e)
 	return;
 }
 
+void Gb_q7_print(const Gb_q7* e, char *str)
+{
+  printf("%s q1 %f q2 %f q3 %f q4 %f q5 %f q6 %f\n", str,e->q1, e->q2, e->q3, e->q4, e->q5, e->q6, e->q7);
+  return;
+}
+
 /*
  * Horrors to interface with the stupidity of eulers angles
  */
