@@ -177,9 +177,10 @@ if test "$GB_TCL" = "yes"; then
 fi
 fi
 dnl look for tkInt.h
-AC_MSG_CHECKING([for TkInt.h])
+AC_MSG_CHECKING([for tkInt.h])
 for ac_dir in \
 	$TK_SRC_DIR/generic				\
+	$TK_PREFIX/include			        \
 	$TK_PREFIX/include/generic			\
 	$TK_PREFIX/include/tk$TK_VERSION/generic	\
 	/Library/Frameworks/Tk.framework/PrivateHeaders \

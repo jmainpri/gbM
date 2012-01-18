@@ -45,7 +45,7 @@ GBM_VERSION=	@VERSION@
 TCL_FILES_DIR=	@datadir@/gbM
 
 CC=		@CC@
-SWIG=		swig
+SWIG=		@SWIG@
 SWIG_TYPEMAP=	-I/usr/share/swig/1.3.31/tcl/typemaps.i
 MKDEP=		@MKDEP@
 MKINSTALLDIRS=	$(SHELL) $(abs_srcdir)/mkinstalldirs
