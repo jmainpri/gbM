@@ -41,16 +41,16 @@ SWIG_VERSION=	-pkgversion $(MAJOR).$(MINOR).$(TINY)
 
 SWIG_FILES=	gb.i gbModeles.i
 
-TCLSRCLIB=      gb.so
+TCLSRCLIB=      gb.la
 
 WRAP_FILE=	gb_wrap.c
-OBJECT_FILES=	$(WRAP_FILE:%.c=%.o)
+OBJECT_FILES=	$(WRAP_FILE:%.c=%.lo)
 
 all:	$(TCLSRCLIB)
 
 install: $(TCLSRCLIB)
 	$(MKINSTALLDIRS) $(LIBDIR)
-	$(INSTALL) $(TCLSRCLIB) $(LIBDIR)
+	$(LIBTOOL) --mode=install $(INSTALL) $(TCLSRCLIB) $(LIBDIR)
 
 
 clean:
@@ -66,14 +66,14 @@ $(WRAP_FILE) : $(SWIG_FILES:%=$(SRCDIR)/%)
 
 $(TCLSRCLIB) : $(OBJECT_FILES)
 	$(TCL_SHLIB_LD) $(TCL_SHLIB_LDFLAGS) -o $(TCLSRCLIB) $(OBJECT_FILES) \
-	-L../src -L../src/.libs -lgb -L$(TCL_LIBDIR) $(TCL_LIBS)
+	../src/libgb.la $(TCL_LIBS)
 
-%.o:   %.c
+%.lo:   %.c
 	$(TCL_CC) -c $(CPPFLAGS) $(TCL_SHLIB_CFLAGS) $(CFLAGS) -o $@ $<
 
 ifeq ($(findstring $(MAKECMDGOALS),clean),)
 depend DEPENDANCES: $(SRCS)
-	$(MKDEP) -c$(CC) -oDEPENDANCES -t.lo $(CPPFLAGS) $?
+	$(MKDEP) -c'$(CC)' -oDEPENDANCES -t.lo $(CPPFLAGS) $?
 
 include DEPENDANCES
 endif
