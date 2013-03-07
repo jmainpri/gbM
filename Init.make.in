@@ -1,20 +1,20 @@
 # -*- Makefile -*-
 # @configure_input@
 #
-# Copyright (C) 1996-2004 LAAS/CNRS 
+# Copyright (C) 1996-2004,2013 LAAS/CNRS
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
-# 
+#
 #    - Redistributions of source code must retain the above copyright
 #      notice, this list of conditions and the following disclaimer.
 #    - Redistributions in binary form must reproduce the above
 #      copyright notice, this list of conditions and the following
 #      disclaimer in the documentation and/or other materials provided
 #      with the distribution.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -27,7 +27,7 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-# 
+#
 # $LAAS$
 
 prefix=		@prefix@
@@ -51,7 +51,6 @@ MKDEP=		@MKDEP@
 MKINSTALLDIRS=	$(SHELL) $(abs_srcdir)/mkinstalldirs
 
 #CPPFLAGS= 	-I$(GDHE_CLIENT_SRC) -I$(GDHE_TOGL_SRC)
-CFLAGS=		@TCL_EXTRA_CFLAGS@
 
 # Custom parameters for building the module
 
@@ -66,17 +65,10 @@ LTLD=		$(LIBTOOL) --mode=link $(CC)
 LTLDPURE=	$(LIBTOOL) --mode=link purify $(CC)
 
 # Tcl/Tk
-TCL_CC=			@TCL_CC@
-TCL_CPPFLAGS=		@TCL_CPPFLAGS@
-TCL_LDFLAGS=		@TCL_LDFLAGS@
+TCL_CC=			${LTCC}
+TCL_CPPFLAGS=		@TCL_INCLUDE_SPEC@ @TK_INCLUDE_SPEC@
 TCL_LIBS=		@TCL_LIB_SPEC@ @TK_LIB_SPEC@
-TCL_LIBDIR=		@LIB_RUNTIME_DIR@
-TCL_LIB_FLAGS=		@TCL_LIB_FLAGS@
-TCL_DBGX=		@TCL_DBGX@
-TCL_SHLIB_CFLAGS=	@TCL_SHLIB_CFLAGS@
-TCL_SHLIB_LDFLAGS=	@TCL_SHLIB_LDFLAGS@
-TCL_SHLIB_SUFFIX=	@TCL_SHLIB_SUFFIX@
-TCL_SHLIB_LD=		@TCL_SHLIB_LD@
+TCL_SHLIB_LD=		${LIBTOOL} --tag=CC --mode=link ${CC} -module -rpath ${exec_prefix}/lib
 
 # Other libs
 LIBS=			@LIBS@
