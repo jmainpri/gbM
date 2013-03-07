@@ -36,7 +36,7 @@ include ../Init.make
 INSTALL=		@INSTALL@
 INSTALL_PROGRAM=	@INSTALL_PROGRAM@
 
-CPPFLAGS+= -I.. @TCL_CPPFLAGS@
+CPPFLAGS+= -I.. ${TCL_CPPFLAGS}
 CFLAGS += -O3 -DNDEBUG
 
 vpath %.c ${top_srcdir}/src
@@ -88,7 +88,7 @@ distclean: clean
 
 ifeq ($(findstring $(MAKECMDGOALS),clean),)
 depend DEPENDANCES: $(SRCS)
-	$(MKDEP) -c$(CC) -oDEPENDANCES -t.lo $(CPPFLAGS) $?
+	$(MKDEP) -c'$(CC)' -oDEPENDANCES -t.lo $(CPPFLAGS) $?
 
 include DEPENDANCES
 endif
