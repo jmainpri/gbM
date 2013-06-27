@@ -37,6 +37,8 @@ DISTNAME= @PACKAGE@-@VERSION@
 
 INSTALL=	@INSTALL@
 
+SHELL = @SHELL@
+
 SUBDIRS= src
 ifeq (@GB_TCL@, yes)
 SUBDIRS+= tclsrc tcl

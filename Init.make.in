@@ -58,7 +58,7 @@ ifeq (@GB_TCL@,yes)
 CFLAGS+= -DGB_TCL
 endif
 
-
+SHELL = 	@SHELL@
 LIBTOOL=	@LIBTOOL@
 LTCC=		$(LIBTOOL) --mode=compile $(CC)
 LTLD=		$(LIBTOOL) --mode=link $(CC)
